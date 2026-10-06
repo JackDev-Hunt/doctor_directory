@@ -1,0 +1,1 @@
+from .dashboard import index  # noqa: F401
