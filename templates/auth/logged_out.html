@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>লগআউট — নেত্রকোনা ডক্টর ডিরেক্টরি</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>body { font-family: 'Hind Siliguri', sans-serif; }</style>
+</head>
+<body class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    <div class="max-w-sm w-full bg-white rounded-2xl border border-slate-200 p-6 text-center">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 grid place-items-center mx-auto mb-4">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>
+            </svg>
+        </div>
+        <h1 class="text-lg font-bold text-slate-900">সফলভাবে লগআউট হয়েছেন</h1>
+        <p class="text-sm text-slate-500 mt-1">আপনার সেশন নিরাপদে বন্ধ হয়েছে।</p>
+        <a href="{% url 'login' %}"
+           class="inline-block mt-5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition">
+            আবার লগইন করুন
+        </a>
+    </div>
+</body>
+</html>

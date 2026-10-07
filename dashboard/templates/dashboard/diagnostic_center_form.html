@@ -1,0 +1,332 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}
+    {% if mode == 'edit' %}Edit{% else %}New Center{% endif %} — Dashboard
+{% endblock %}
+
+{% block content %}
+
+<form method="post" enctype="multipart/form-data" class="space-y-5">
+    {% csrf_token %}
+
+    <!-- ===================================================== -->
+    <!-- BASIC INFO                                             -->
+    <!-- ===================================================== -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+        <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-700 grid place-items-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/>
+                </svg>
+            </div>
+            <h2 class="text-base font-bold text-slate-900">Basic Information</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div>
+                <label for="name_bn" class="block text-sm font-medium text-slate-700 mb-1.5">
+                    Name (Bangla) <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="name_bn" id="name_bn" required
+                       value="{{ form_data.name_bn|default:'' }}"
+                       placeholder="e.g. জনস্বাস্থ্য ডায়াগনস্টিক সেন্টার"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div>
+                <label for="name_en" class="block text-sm font-medium text-slate-700 mb-1.5">
+                    Name (English) <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="name_en" id="name_en" required
+                       value="{{ form_data.name_en|default:'' }}"
+                       placeholder="e.g. Janasasthya Diagnostic Center"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div class="md:col-span-2">
+                <label for="slug" class="block text-sm font-medium text-slate-700 mb-1.5">
+                    Slug <span class="text-xs text-slate-400 font-normal">(leave empty to auto-generate)</span>
+                </label>
+                <input type="text" name="slug" id="slug"
+                       value="{{ form_data.slug|default:'' }}"
+                       placeholder="janasasthya-diagnostic-center"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-mono
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <!-- Logo & Cover -->
+            <div>
+                <label for="logo" class="block text-sm font-medium text-slate-700 mb-1.5">Logo</label>
+                {% if center.logo %}
+                <div class="mb-2 w-20 h-20 rounded-xl border border-slate-200 overflow-hidden bg-slate-50">
+                    <img src="{{ center.logo.url }}" alt="Logo" class="w-full h-full object-contain p-1.5">
+                </div>
+                {% endif %}
+                <input type="file" name="logo" id="logo" accept="image/*"
+                       class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0
+                              file:bg-brand-50 file:text-brand-700 file:font-medium hover:file:bg-brand-100
+                              file:cursor-pointer text-slate-600 cursor-pointer">
+            </div>
+
+            <div>
+                <label for="cover" class="block text-sm font-medium text-slate-700 mb-1.5">Cover Image</label>
+                {% if center.cover %}
+                <div class="mb-2 w-full h-20 rounded-xl border border-slate-200 overflow-hidden bg-slate-50">
+                    <img src="{{ center.cover.url }}" alt="Cover" class="w-full h-full object-cover">
+                </div>
+                {% endif %}
+                <input type="file" name="cover" id="cover" accept="image/*"
+                       class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0
+                              file:bg-brand-50 file:text-brand-700 file:font-medium hover:file:bg-brand-100
+                              file:cursor-pointer text-slate-600 cursor-pointer">
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- LOCATION                                                -->
+    <!-- ===================================================== -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+        <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 grid place-items-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M17.657 16.657 13.414 20.9a2 2 0 0 1-2.828 0l-4.243-4.243a8 8 0 1 1 11.314 0Z"/><circle cx="12" cy="10" r="2.5"/>
+                </svg>
+            </div>
+            <h2 class="text-base font-bold text-slate-900">Location & Address</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="area_bn" class="block text-sm font-medium text-slate-700 mb-1.5">Area (Bangla)</label>
+                <input type="text" name="area_bn" id="area_bn"
+                       value="{{ form_data.area_bn|default:'' }}"
+                       placeholder="e.g. সদর, দুর্গাপুর"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div>
+                <label for="area_en" class="block text-sm font-medium text-slate-700 mb-1.5">Area (English)</label>
+                <input type="text" name="area_en" id="area_en"
+                       value="{{ form_data.area_en|default:'' }}"
+                       placeholder="e.g. Sadar, Durgapur"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div class="md:col-span-2">
+                <label for="address_bn" class="block text-sm font-medium text-slate-700 mb-1.5">Address (Bangla)</label>
+                <input type="text" name="address_bn" id="address_bn"
+                       value="{{ form_data.address_bn|default:'' }}"
+                       placeholder="e.g. কলেজ রোড, নেত্রকোনা সদর"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div class="md:col-span-2">
+                <label for="address_en" class="block text-sm font-medium text-slate-700 mb-1.5">Address (English)</label>
+                <input type="text" name="address_en" id="address_en"
+                       value="{{ form_data.address_en|default:'' }}"
+                       placeholder="e.g. College Road, Netrakona Sadar"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div>
+                <label for="latitude" class="block text-sm font-medium text-slate-700 mb-1.5">Latitude</label>
+                <input type="text" name="latitude" id="latitude" inputmode="decimal"
+                       value="{{ form_data.latitude|default:'' }}"
+                       placeholder="24.870123"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-mono
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div>
+                <label for="longitude" class="block text-sm font-medium text-slate-700 mb-1.5">Longitude</label>
+                <input type="text" name="longitude" id="longitude" inputmode="decimal"
+                       value="{{ form_data.longitude|default:'' }}"
+                       placeholder="90.725678"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-mono
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div class="md:col-span-2">
+                <label for="map_url" class="block text-sm font-medium text-slate-700 mb-1.5">Google Maps URL</label>
+                <input type="url" name="map_url" id="map_url"
+                       value="{{ form_data.map_url|default:'' }}"
+                       placeholder="https://maps.app.goo.gl/..."
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- CONTACT                                                 -->
+    <!-- ===================================================== -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+        <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 grid place-items-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M3 5a2 2 0 0 1 2-2h3l2 5-2 1a12 12 0 0 0 6 6l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 5Z"/>
+                </svg>
+            </div>
+            <h2 class="text-base font-bold text-slate-900">Contact</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="phone" class="block text-sm font-medium text-slate-700 mb-1.5">Phone</label>
+                <input type="tel" name="phone" id="phone"
+                       value="{{ form_data.phone|default:'' }}"
+                       placeholder="017xxxxxxxx"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div>
+                <label for="phone_alt" class="block text-sm font-medium text-slate-700 mb-1.5">Alternate Phone</label>
+                <input type="tel" name="phone_alt" id="phone_alt"
+                       value="{{ form_data.phone_alt|default:'' }}"
+                       placeholder="017xxxxxxxx"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+                <input type="email" name="email" id="email"
+                       value="{{ form_data.email|default:'' }}"
+                       placeholder="info@example.com"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div>
+                <label for="website" class="block text-sm font-medium text-slate-700 mb-1.5">Website</label>
+                <input type="url" name="website" id="website"
+                       value="{{ form_data.website|default:'' }}"
+                       placeholder="https://example.com"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- DETAILS                                                 -->
+    <!-- ===================================================== -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+        <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-700 grid place-items-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/>
+                </svg>
+            </div>
+            <h2 class="text-base font-bold text-slate-900">Additional Details</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="opening_hours_bn" class="block text-sm font-medium text-slate-700 mb-1.5">Opening Hours (Bangla)</label>
+                <input type="text" name="opening_hours_bn" id="opening_hours_bn"
+                       value="{{ form_data.opening_hours_bn|default:'' }}"
+                       placeholder="সকাল ৮টা – রাত ১০টা"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div>
+                <label for="opening_hours_en" class="block text-sm font-medium text-slate-700 mb-1.5">Opening Hours (English)</label>
+                <input type="text" name="opening_hours_en" id="opening_hours_en"
+                       value="{{ form_data.opening_hours_en|default:'' }}"
+                       placeholder="8 AM – 10 PM"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div class="md:col-span-2">
+                <label for="description_bn" class="block text-sm font-medium text-slate-700 mb-1.5">Description (Bangla)</label>
+                <textarea name="description_bn" id="description_bn" rows="3"
+                          placeholder="সংক্ষিপ্ত বিবরণ..."
+                          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm resize-y
+                                 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">{{ form_data.description_bn|default:'' }}</textarea>
+            </div>
+
+            <div class="md:col-span-2">
+                <label for="description_en" class="block text-sm font-medium text-slate-700 mb-1.5">Description (English)</label>
+                <textarea name="description_en" id="description_en" rows="3"
+                          placeholder="Brief description..."
+                          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm resize-y
+                                 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">{{ form_data.description_en|default:'' }}</textarea>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- STATUS                                                  -->
+    <!-- ===================================================== -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+        <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 grid place-items-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/>
+                </svg>
+            </div>
+            <h2 class="text-base font-bold text-slate-900">Status</h2>
+        </div>
+
+        <div class="space-y-3">
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" name="is_active"
+                       {% if form_data.is_active %}checked{% endif %}
+                       class="mt-0.5 w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                <div>
+                    <div class="text-sm font-medium text-slate-900">Active</div>
+                    <div class="text-xs text-slate-500 mt-0.5">Show this center on the public website</div>
+                </div>
+            </label>
+
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" name="is_verified"
+                       {% if form_data.is_verified %}checked{% endif %}
+                       class="mt-0.5 w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                <div>
+                    <div class="text-sm font-medium text-slate-900">Verified</div>
+                    <div class="text-xs text-slate-500 mt-0.5">Information has been verified</div>
+                </div>
+            </label>
+
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" name="is_featured"
+                       {% if form_data.is_featured %}checked{% endif %}
+                       class="mt-0.5 w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                <div>
+                    <div class="text-sm font-medium text-slate-900">Featured</div>
+                    <div class="text-xs text-slate-500 mt-0.5">Show on homepage prominently</div>
+                </div>
+            </label>
+        </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- ACTIONS                                                 -->
+    <!-- ===================================================== -->
+    <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2 sticky bottom-0 bg-slate-50/95 backdrop-blur -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3 border-t border-slate-200">
+        <a href="{% url 'dashboard:center_list' %}"
+           class="text-center border border-slate-200 hover:bg-white text-slate-700 text-sm font-medium px-5 py-2.5 rounded-xl transition">
+            Cancel
+        </a>
+        <button type="submit"
+                class="bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition shadow-sm">
+            {% if mode == 'edit' %}Update{% else %}Save{% endif %}
+        </button>
+    </div>
+
+</form>
+
+{% endblock %}

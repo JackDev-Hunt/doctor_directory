@@ -33,7 +33,6 @@ INSTALLED_APPS = [
     'website',
     'doctors',
     'dashboard',
-    'api',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +129,10 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
 }
+
+# ------------------------------------------------------------------
+# Authentication
+# ------------------------------------------------------------------
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard:index'
+LOGOUT_REDIRECT_URL = 'login'

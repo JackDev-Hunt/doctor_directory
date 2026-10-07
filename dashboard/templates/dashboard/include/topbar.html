@@ -1,0 +1,78 @@
+{% load static %}
+<!--
+  TOPBAR — sticky, responsive
+  Uses context variable {{ page_title }} for the page title.
+-->
+<header class="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-slate-200">
+    <div class="h-16 px-4 sm:px-6 lg:px-8 flex items-center gap-3">
+
+        <!-- Hamburger (mobile) -->
+        <button id="sidebarOpenBtn"
+                type="button"
+                class="lg:hidden w-9 h-9 shrink-0 grid place-items-center rounded-lg
+                       text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition"
+                aria-label="Open sidebar"
+                aria-controls="sidebar"
+                aria-expanded="false">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                <path d="M4 7h16M4 12h16M4 17h16"/>
+            </svg>
+        </button>
+
+        <!-- Title / Breadcrumb -->
+        <div class="min-w-0 flex-1">
+            <nav aria-label="Breadcrumb" class="hidden sm:flex items-center gap-1 text-[11px] text-slate-500 mb-0.5">
+                <a href="{% url 'dashboard:index' %}" class="hover:text-brand-700 transition">Dashboard</a>
+                {% if page_title %}
+                <span class="text-slate-400">/</span>
+                <span class="text-slate-700 font-medium truncate">{{ page_title }}</span>
+                {% endif %}
+            </nav>
+            <h1 class="text-base sm:text-lg font-bold text-slate-900 truncate">
+                {{ page_title|default:"Dashboard" }}
+            </h1>
+        </div>
+
+        <!-- Right side -->
+        <div class="flex items-center gap-2 shrink-0">
+
+            <!-- Search -->
+            <button type="button"
+                    class="hidden md:grid w-9 h-9 place-items-center rounded-lg
+                           text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition"
+                    aria-label="Search">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+                </svg>
+            </button>
+
+            <!-- Notifications -->
+            <button type="button"
+                    class="relative hidden sm:grid w-9 h-9 place-items-center rounded-lg
+                           text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition"
+                    aria-label="Notifications">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 1 1-6 0"/>
+                </svg>
+                <span class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-red-500 ring-2 ring-white"></span>
+            </button>
+
+            <div class="hidden sm:block w-px h-6 bg-slate-200"></div>
+
+            <!-- User menu -->
+            <button type="button"
+                    class="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-slate-100 transition"
+                    aria-label="User menu">
+                <div class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 grid place-items-center text-xs font-bold uppercase">
+                    {{ request.user.username|slice:":1" }}
+                </div>
+                <span class="hidden sm:block text-xs font-medium text-slate-700 max-w-[100px] truncate">
+                    {{ request.user.username }}
+                </span>
+                <svg class="hidden sm:block w-3 h-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M6 9l6 6 6-6"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,712 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="bn" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0d9488">
+
+    <!-- SEO -->
+    <title>নেত্রকোনা ডক্টর ডিরেক্টরি — Netrakona Doctor Directory</title>
+    <meta name="description" content="নেত্রকোনায় ডাক্তার, বিশেষজ্ঞ, ডায়াগনস্টিক সেন্টার ও চেম্বারের সঠিক তথ্য এক জায়গায়। দ্রুত খুঁজুন — নাম, বিশেষত্ব, বা এলাকা দিয়ে।">
+    <meta name="keywords" content="Netrakona doctor, নেত্রকোনা ডাক্তার, specialist, chamber, diagnostic center">
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="নেত্রকোনা ডক্টর ডিরেক্টরি">
+    <meta property="og:description" content="নেত্রকোনায় সঠিক ডাক্তার খুঁজুন">
+    <meta property="og:type" content="website">
+
+    <!-- Favicon (placeholder) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🩺</text></svg>">
+
+    <!-- Fonts: Hind Siliguri (Bangla) + Inter (English) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CDN (temporary — Part 5 এ proper build setup হবে) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        bangla: ['"Hind Siliguri"', 'system-ui', 'sans-serif'],
+                        english: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50:  '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+
+    <style>
+        :root {
+            --font-bangla: 'Hind Siliguri', system-ui, sans-serif;
+            --font-english: 'Inter', system-ui, sans-serif;
+
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #14b8a6;
+
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        /* Bengali typography tuning */
+        [lang="bn"] body {
+            font-family: var(--font-bangla);
+            line-height: 1.75;
+            letter-spacing: 0.01em;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+        [lang="bn"] h1, [lang="bn"] h2, [lang="bn"] h3 {
+            line-height: 1.4;
+            letter-spacing: 0.005em;
+        }
+        /* Avoid breaking conjuncts on tight widths */
+        p, h1, h2, h3, h4, a, button {
+            word-break: normal;
+            overflow-wrap: break-word;
+        }
+
+        /* Subtle entrance animation */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fadeUp .5s ease-out both; }
+        .delay-1 { animation-delay: .05s; }
+        .delay-2 { animation-delay: .1s; }
+        .delay-3 { animation-delay: .15s; }
+
+        /* Focus ring */
+        :focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body class="bg-[var(--bg)] text-[var(--text)] font-bangla antialiased min-h-screen flex flex-col">
+
+    <!-- ============================================================ -->
+    <!-- HEADER                                                        -->
+    <!-- ============================================================ -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-[var(--border)]">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-14 sm:h-16">
+
+                <!-- Logo -->
+                <a href="/" class="flex items-center gap-2 shrink-0" aria-label="হোমপেজে যান">
+                    <div class="w-9 h-9 rounded-xl bg-brand-600 grid place-items-center text-white shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="w-5 h-5">
+                            <path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="leading-tight">
+                        <div class="text-[15px] sm:text-base font-bold text-slate-900">নেত্রকোনা ডক্টর</div>
+                        <div class="text-[10px] sm:text-[11px] text-slate-500 -mt-0.5">Doctor Directory</div>
+                    </div>
+                </a>
+
+                <!-- Desktop nav (hidden on mobile) -->
+                <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
+                    <a href="#specialists" class="px-3 py-2 rounded-lg text-slate-600 hover:text-brand-700 hover:bg-brand-50 transition">বিশেষজ্ঞ</a>
+                    <a href="#centers"     class="px-3 py-2 rounded-lg text-slate-600 hover:text-brand-700 hover:bg-brand-50 transition">ডায়াগনস্টিক সেন্টার</a>
+                    <a href="#doctors"     class="px-3 py-2 rounded-lg text-slate-600 hover:text-brand-700 hover:bg-brand-50 transition">ডাক্তার</a>
+                    <a href="#emergency"   class="px-3 py-2 rounded-lg text-slate-600 hover:text-brand-700 hover:bg-brand-50 transition">ইমার্জেন্সি</a>
+                </nav>
+
+                <!-- Language switcher + mobile menu button -->
+                <div class="flex items-center gap-2">
+                    <!-- Lang switcher -->
+                    <form action="/i18n/setlang/" method="post" class="hidden sm:block">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <select name="language" onchange="this.form.submit()"
+                                class="text-xs font-medium bg-slate-100 hover:bg-slate-200 border-0 rounded-lg px-2.5 py-1.5 cursor-pointer transition"
+                                aria-label="ভাষা পরিবর্তন করুন">
+                            <option value="bn" {% if LANGUAGE_CODE == 'bn' %}selected{% endif %}>বাংলা</option>
+                            <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
+                        </select>
+                    </form>
+
+                    <!-- Mobile lang (small) -->
+                    <form action="/i18n/setlang/" method="post" class="sm:hidden">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <select name="language" onchange="this.form.submit()"
+                                class="text-xs font-medium bg-slate-100 border-0 rounded-lg px-2 py-1.5"
+                                aria-label="ভাষা">
+                            <option value="bn" {% if LANGUAGE_CODE == 'bn' %}selected{% endif %}>বাং</option>
+                            <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>EN</option>
+                        </select>
+                    </form>
+
+                    <!-- Mobile menu toggle -->
+                    <button id="menuBtn" type="button"
+                            class="md:hidden w-9 h-9 grid place-items-center rounded-lg hover:bg-slate-100 transition"
+                            aria-label="মেনু খুলুন" aria-expanded="false" aria-controls="mobileMenu">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round">
+                            <path d="M4 7h16M4 12h16M4 17h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu panel -->
+        <div id="mobileMenu" class="md:hidden hidden border-t border-[var(--border)] bg-white">
+            <nav class="max-w-6xl mx-auto px-4 py-3 flex flex-col text-sm font-medium">
+                <a href="#specialists" class="px-3 py-3 rounded-lg text-slate-700 hover:bg-brand-50 hover:text-brand-700 transition">বিশেষজ্ঞ</a>
+                <a href="#centers"     class="px-3 py-3 rounded-lg text-slate-700 hover:bg-brand-50 hover:text-brand-700 transition">ডায়াগনস্টিক সেন্টার</a>
+                <a href="#doctors"     class="px-3 py-3 rounded-lg text-slate-700 hover:bg-brand-50 hover:text-brand-700 transition">ডাক্তার</a>
+                <a href="#emergency"   class="px-3 py-3 rounded-lg text-slate-700 hover:bg-brand-50 hover:text-brand-700 transition">ইমার্জেন্সি</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- MAIN                                                          -->
+    <!-- ============================================================ -->
+    <main class="flex-1">
+
+        <!-- ---------------------------------------------------------- -->
+        <!-- HERO + SEARCH                                             -->
+        <!-- ---------------------------------------------------------- -->
+        <section class="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white">
+            <!-- soft decorative blur -->
+            <div aria-hidden="true" class="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand-200/40 blur-3xl"></div>
+            <div aria-hidden="true" class="pointer-events-none absolute top-40 -left-20 w-72 h-72 rounded-full bg-teal-200/30 blur-3xl"></div>
+
+            <div class="relative max-w-6xl mx-auto px-4 sm:px-6 pt-8 sm:pt-14 pb-6 sm:pb-10">
+                <div class="max-w-2xl mx-auto text-center fade-up">
+                    <span class="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-medium text-brand-700 bg-brand-100/70 px-3 py-1 rounded-full mb-3">
+                        <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></span>
+                        নেত্রকোনা জেলার জন্য বিশেষভাবে তৈরি
+                    </span>
+
+                    <h1 class="text-[26px] sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
+                        নেত্রকোনায় <span class="text-brand-700">সঠিক ডাক্তার</span> খুঁজুন
+                    </h1>
+                    <p class="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+                        বিশেষজ্ঞ, চেম্বারের সময়, ডায়াগনস্টিক সেন্টার — সব তথ্য এক জায়গায়।<br class="hidden sm:block">
+                        নাম, বিশেষত্ব বা এলাকা দিয়ে দ্রুত খুঁজুন।
+                    </p>
+
+                    <!-- Search bar -->
+                    <form role="search" action="/doctors/" method="get"
+                          class="mt-6 sm:mt-8 fade-up delay-1">
+                        <div class="flex items-stretch bg-white rounded-2xl shadow-lg shadow-brand-900/5 border border-[var(--border)] overflow-hidden focus-within:ring-2 focus-within:ring-brand-500/40">
+                            <div class="pl-3 sm:pl-4 pr-1 grid place-items-center text-slate-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                                    <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+                                </svg>
+                            </div>
+                            <input type="search" name="search"
+                                   placeholder="ডাক্তারের নাম, বিশেষত্ব বা এলাকা লিখুন..."
+                                   class="flex-1 min-w-0 bg-transparent border-0 px-2 py-3.5 sm:py-4 text-[15px] placeholder:text-slate-400 focus:outline-none"
+                                   aria-label="ডাক্তার খুঁজুন">
+                            <button type="submit"
+                                    class="m-1.5 sm:m-2 px-4 sm:px-6 bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-semibold text-sm rounded-xl transition shadow-sm">
+                                খুঁজুন
+                            </button>
+                        </div>
+
+                        <!-- Quick tag suggestions -->
+                        <div class="mt-3 flex flex-wrap justify-center gap-1.5 text-[11px] sm:text-xs">
+                            <span class="text-slate-400 px-1 py-1">জনপ্রিয়:</span>
+                            <a href="/doctors/?search=হৃদরোগ" class="px-2.5 py-1 rounded-full bg-white border border-[var(--border)] text-slate-600 hover:border-brand-300 hover:text-brand-700 transition">হৃদরোগ</a>
+                            <a href="/doctors/?search=মেডিসিন" class="px-2.5 py-1 rounded-full bg-white border border-[var(--border)] text-slate-600 hover:border-brand-300 hover:text-brand-700 transition">মেডিসিন</a>
+                            <a href="/doctors/?search=শিশু" class="px-2.5 py-1 rounded-full bg-white border border-[var(--border)] text-slate-600 hover:border-brand-300 hover:text-brand-700 transition">শিশু</a>
+                            <a href="/doctors/?search=গাইনি" class="px-2.5 py-1 rounded-full bg-white border border-[var(--border)] text-slate-600 hover:border-brand-300 hover:text-brand-700 transition">গাইনি</a>
+                            <a href="/doctors/?search=চর্ম" class="px-2.5 py-1 rounded-full bg-white border border-[var(--border)] text-slate-600 hover:border-brand-300 hover:text-brand-700 transition">চর্ম</a>
+                        </div>
+                    </form>
+
+                    <!-- Trust bar -->
+                    <div class="mt-8 grid grid-cols-3 gap-3 fade-up delay-2">
+                        <div class="text-center">
+                            <div class="text-lg sm:text-2xl font-bold text-slate-900">১০০+</div>
+                            <div class="text-[11px] sm:text-xs text-slate-500 mt-0.5">ডাক্তার</div>
+                        </div>
+                        <div class="text-center border-x border-[var(--border)]">
+                            <div class="text-lg sm:text-2xl font-bold text-slate-900">২০+</div>
+                            <div class="text-[11px] sm:text-xs text-slate-500 mt-0.5">বিশেষজ্ঞ</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg sm:text-2xl font-bold text-slate-900">১৫+</div>
+                            <div class="text-[11px] sm:text-xs text-slate-500 mt-0.5">ডায়াগনস্টিক সেন্টার</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ---------------------------------------------------------- -->
+        <!-- QUICK ACTIONS                                             -->
+        <!-- ---------------------------------------------------------- -->
+        <section class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 fade-up delay-3">
+                <a href="/doctors/" class="group bg-white rounded-2xl border border-[var(--border)] p-4 sm:p-5 hover:border-brand-300 hover:shadow-md hover:shadow-brand-900/5 transition-all">
+                    <div class="w-10 h-10 rounded-xl bg-brand-50 grid place-items-center text-brand-700 mb-3 group-hover:bg-brand-100 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-[13px] sm:text-sm font-semibold text-slate-900">ডাক্তার খুঁজুন</h3>
+                    <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">নাম বা বিশেষত্ব</p>
+                </a>
+
+                <a href="/specialists/" class="group bg-white rounded-2xl border border-[var(--border)] p-4 sm:p-5 hover:border-brand-300 hover:shadow-md hover:shadow-brand-900/5 transition-all">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 grid place-items-center text-blue-700 mb-3 group-hover:bg-blue-100 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M9 12l2 2 4-4M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-[13px] sm:text-sm font-semibold text-slate-900">বিশেষজ্ঞ</h3>
+                    <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">ক্যাটাগরি অনুযায়ী</p>
+                </a>
+
+                <a href="/diagnostic-centers/" class="group bg-white rounded-2xl border border-[var(--border)] p-4 sm:p-5 hover:border-brand-300 hover:shadow-md hover:shadow-brand-900/5 transition-all">
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 grid place-items-center text-purple-700 mb-3 group-hover:bg-purple-100 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-[13px] sm:text-sm font-semibold text-slate-900">ডায়াগনস্টিক সেন্টার</h3>
+                    <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">ঠিকানা ও যোগাযোগ</p>
+                </a>
+
+                <a href="#emergency" class="group bg-white rounded-2xl border border-[var(--border)] p-4 sm:p-5 hover:border-red-300 hover:shadow-md hover:shadow-red-900/5 transition-all">
+                    <div class="w-10 h-10 rounded-xl bg-red-50 grid place-items-center text-red-600 mb-3 group-hover:bg-red-100 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M12 8v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-[13px] sm:text-sm font-semibold text-slate-900">ইমার্জেন্সি</h3>
+                    <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">জরুরি নম্বর</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- ---------------------------------------------------------- -->
+        <!-- SPECIALIST CATEGORIES                                     -->
+        <!-- ---------------------------------------------------------- -->
+        <section id="specialists" class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+            <div class="flex items-end justify-between mb-4 sm:mb-6">
+                <div>
+                    <h2 class="text-lg sm:text-2xl font-bold text-slate-900">জনপ্রিয় বিশেষজ্ঞ</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">যে বিশেষজ্ঞ খুঁজছেন সেটি বেছে নিন</p>
+                </div>
+                <a href="/specialists/" class="text-xs sm:text-sm font-medium text-brand-700 hover:text-brand-800 whitespace-nowrap">সব দেখুন →</a>
+            </div>
+
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5 sm:gap-4">
+                <!-- Specialist card (x12) -->
+                <a href="/specialists/cardiology/" class="group bg-white rounded-xl sm:rounded-2xl border border-[var(--border)] p-3 sm:p-4 text-center hover:border-brand-300 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl bg-red-50 text-red-600 grid place-items-center mb-2 group-hover:scale-105 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"/>
+                        </svg>
+                    </div>
+                    <div class="text-[12px] sm:text-[13px] font-semibold text-slate-900 leading-tight">হৃদরোগ</div>
+                    <div class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Cardiology</div>
+                </a>
+
+                <a href="/specialists/medicine/" class="group bg-white rounded-xl sm:rounded-2xl border border-[var(--border)] p-3 sm:p-4 text-center hover:border-brand-300 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl bg-blue-50 text-blue-600 grid place-items-center mb-2 group-hover:scale-105 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                    </div>
+                    <div class="text-[12px] sm:text-[13px] font-semibold text-slate-900 leading-tight">মেডিসিন</div>
+                    <div class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Medicine</div>
+                </a>
+
+                <a href="/specialists/neurology/" class="group bg-white rounded-xl sm:rounded-2xl border border-[var(--border)] p-3 sm:p-4 text-center hover:border-brand-300 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl bg-purple-50 text-purple-600 grid place-items-center mb-2 group-hover:scale-105 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M9 3v2M15 3v2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"/><path d="M9 12h6M12 9v6"/>
+                        </svg>
+                    </div>
+                    <div class="text-[12px] sm:text-[13px] font-semibold text-slate-900 leading-tight">নিউরোলজি</div>
+                    <div class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Neurology</div>
+                </a>
+
+                <a href="/specialists/pediatrics/" class="group bg-white rounded-xl sm:rounded-2xl border border-[var(--border)] p-3 sm:p-4 text-center hover:border-brand-300 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl bg-pink-50 text-pink-600 grid place-items-center mb-2 group-hover:scale-105 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>
+                        </svg>
+                    </div>
+                    <div class="text-[12px] sm:text-[13px] font-semibold text-slate-900 leading-tight">শিশু</div>
+                    <div class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Pediatrics</div>
+                </a>
+
+                <a href="/specialists/gynecology/" class="group bg-white rounded-xl sm:rounded-2xl border border-[var(--border)] p-3 sm:p-4 text-center hover:border-brand-300 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl bg-rose-50 text-rose-600 grid place-items-center mb-2 group-hover:scale-105 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <circle cx="12" cy="9" r="5"/><path d="M12 14v7m-3-3h6"/>
+                        </svg>
+                    </div>
+                    <div class="text-[12px] sm:text-[13px] font-semibold text-slate-900 leading-tight">গাইনি</div>
+                    <div class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Gynecology</div>
+                </a>
+
+                <a href="/specialists/orthopedics/" class="group bg-white rounded-xl sm:rounded-2xl border border-[var(--border)] p-3 sm:p-4 text-center hover:border-brand-300 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl bg-amber-50 text-amber-600 grid place-items-center mb-2 group-hover:scale-105 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M6 3v6a3 3 0 0 0 3 3h3m0 0v9m0-9h3a3 3 0 0 0 3-3V3"/>
+                        </svg>
+                    </div>
+                    <div class="text-[12px] sm:text-[13px] font-semibold text-slate-900 leading-tight">অর্থোপেডিক</div>
+                    <div class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Orthopedics</div>
+                </a>
+
+                <a href="/specialists/dermatology/" class="group bg-white rounded-xl sm:rounded-2xl border border-[var(--border)] p-3 sm:p-4 text-center hover:border-brand-300 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl bg-orange-50 text-orange-600 grid place-items-center mb-2 group-hover:scale-105 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M5 19l3-3m8-8 3-3"/>
+                        </svg>
+                    </div>
+                    <div class="text-[12px] sm:text-[13px] font-semibold text-slate-900 leading-tight">চর্ম</div>
+                    <div class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Dermatology</div>
+                </a>
+
+                <a href="/specialists/ent/" class="group bg-white rounded-xl sm:rounded-2xl border border-[var(--border)] p-3 sm:p-4 text-center hover:border-brand-300 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl bg-cyan-50 text-cyan-600 grid place-items-center mb-2 group-hover:scale-105 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M6 8a6 6 0 1 1 12 0v4a4 4 0 0 1-8 0"/>
+                        </svg>
+                    </div>
+                    <div class="text-[12px] sm:text-[13px] font-semibold text-slate-900 leading-tight">নাক-কান-গলা</div>
+                    <div class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">ENT</div>
+                </a>
+
+                <a href="/specialists/ophthalmology/" class="group bg-white rounded-xl sm:rounded-2xl border border-[var(--border)] p-3 sm:p-4 text-center hover:border-brand-300 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl bg-sky-50 text-sky-600 grid place-items-center mb-2 group-hover:scale-105 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </div>
+                    <div class="text-[12px] sm:text-[13px] font-semibold text-slate-900 leading-tight">চোখ</div>
+                    <div class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Ophthalmology</div>
+                </a>
+
+                <a href="/specialists/dental/" class="group bg-white rounded-xl sm:rounded-2xl border border-[var(--border)] p-3 sm:p-4 text-center hover:border-brand-300 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl bg-indigo-50 text-indigo-600 grid place-items-center mb-2 group-hover:scale-105 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M12 2c2 0 3 1 5 1s4 1 4 5c0 5-2 7-3 10s-2 4-3 4-1-2-1-3-1-2-2-2-2 1-2 2 0 3-1 3-2-1-3-4-3-5-3-10c0-4 2-5 4-5s3-1 5-1Z"/>
+                        </svg>
+                    </div>
+                    <div class="text-[12px] sm:text-[13px] font-semibold text-slate-900 leading-tight">দন্ত</div>
+                    <div class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Dental</div>
+                </a>
+
+                <a href="/specialists/nephrology/" class="group bg-white rounded-xl sm:rounded-2xl border border-[var(--border)] p-3 sm:p-4 text-center hover:border-brand-300 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl bg-emerald-50 text-emerald-600 grid place-items-center mb-2 group-hover:scale-105 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M7 4c3 0 5 2 5 5s-2 5-5 5-3-2-3-5 0-5 3-5Zm10 6c-3 0-5 2-5 5s2 5 5 5 3-2 3-5 0-5-3-5Z"/>
+                        </svg>
+                    </div>
+                    <div class="text-[12px] sm:text-[13px] font-semibold text-slate-900 leading-tight">কিডনি</div>
+                    <div class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Nephrology</div>
+                </a>
+
+                <a href="/specialists/psychiatry/" class="group bg-white rounded-xl sm:rounded-2xl border border-[var(--border)] p-3 sm:p-4 text-center hover:border-brand-300 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl bg-violet-50 text-violet-600 grid place-items-center mb-2 group-hover:scale-105 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M12 3a6 6 0 0 0-6 6c0 2 1 3 1 5s-1 3-1 3h12s-1-1-1-3 1-3 1-5a6 6 0 0 0-6-6Z"/><path d="M12 3v18"/>
+                        </svg>
+                    </div>
+                    <div class="text-[12px] sm:text-[13px] font-semibold text-slate-900 leading-tight">মনোরোগ</div>
+                    <div class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Psychiatry</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- ---------------------------------------------------------- -->
+        <!-- FEATURED DOCTORS                                          -->
+        <!-- ---------------------------------------------------------- -->
+        <section id="doctors" class="bg-white border-y border-[var(--border)]">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+                <div class="flex items-end justify-between mb-4 sm:mb-6">
+                    <div>
+                        <h2 class="text-lg sm:text-2xl font-bold text-slate-900">বাছাইকৃত ডাক্তার</h2>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1">নেত্রকোনার যাচাইকৃত ডাক্তারগণ</p>
+                    </div>
+                    <a href="/doctors/" class="text-xs sm:text-sm font-medium text-brand-700 hover:text-brand-800 whitespace-nowrap">সব দেখুন →</a>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
+                    <!-- Doctor card (x3) -->
+                    {% for i in "123" %}
+                    <article class="bg-white rounded-2xl border border-[var(--border)] overflow-hidden hover:shadow-lg hover:shadow-brand-900/5 hover:border-brand-200 transition-all">
+                        <div class="p-4 sm:p-5">
+                            <div class="flex gap-3 sm:gap-4">
+                                <!-- Avatar -->
+                                <div class="shrink-0">
+                                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-200 grid place-items-center text-brand-700 text-xl font-bold">
+                                        ডা
+                                    </div>
+                                </div>
+                                <!-- Info -->
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-start gap-1.5">
+                                        <h3 class="font-semibold text-slate-900 text-[15px] sm:text-base truncate">
+                                            ডা. নাম উদাহরণ
+                                        </h3>
+                                        <span title="যাচাইকৃত" class="shrink-0 mt-0.5">
+                                            <svg class="w-4 h-4 text-brand-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.7-9.3a1 1 0 0 0-1.4-1.4L9 10.6 7.7 9.3a1 1 0 1 0-1.4 1.4l2 2a1 1 0 0 0 1.4 0l4-4Z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5 truncate">MBBS, FCPS (Cardiology)</p>
+                                    <p class="text-xs sm:text-sm font-medium text-brand-700 mt-1">হৃদরোগ বিশেষজ্ঞ</p>
+                                    <p class="text-[11px] sm:text-xs text-slate-500 mt-1">পরামর্শ ফি: ৳ ৮০০</p>
+                                </div>
+                            </div>
+
+                            <!-- Meta -->
+                            <div class="mt-4 pt-4 border-t border-slate-100 space-y-2 text-[12px] sm:text-[13px]">
+                                <div class="flex items-start gap-2 text-slate-600">
+                                    <svg class="w-4 h-4 shrink-0 mt-0.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                                        <path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/>
+                                    </svg>
+                                    <span>জনস্বাস্থ্য ডায়াগনস্টিক সেন্টার, নেত্রকোনা</span>
+                                </div>
+                                <div class="flex items-start gap-2 text-slate-600">
+                                    <svg class="w-4 h-4 shrink-0 mt-0.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                                        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+                                    </svg>
+                                    <span>শনি, সোম, বুধ — বিকাল ৪টা - রাত ৮টা</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="grid grid-cols-3 border-t border-[var(--border)] divide-x divide-[var(--border)] text-xs sm:text-sm font-medium">
+                            <a href="/doctors/example/" class="py-3 text-center text-slate-700 hover:bg-slate-50 transition">প্রোফাইল</a>
+                            <a href="tel:+8801700000000" class="py-3 text-center text-brand-700 hover:bg-brand-50 transition inline-flex items-center justify-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                                    <path d="M3 5a2 2 0 0 1 2-2h3l2 5-2 1a12 12 0 0 0 6 6l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 5Z"/>
+                                </svg>
+                                কল
+                            </a>
+                            <a href="#" class="py-3 text-center text-slate-700 hover:bg-slate-50 transition">লোকেশন</a>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- ---------------------------------------------------------- -->
+        <!-- DIAGNOSTIC CENTERS                                        -->
+        <!-- ---------------------------------------------------------- -->
+        <section id="centers" class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            <div class="flex items-end justify-between mb-4 sm:mb-6">
+                <div>
+                    <h2 class="text-lg sm:text-2xl font-bold text-slate-900">ডায়াগনস্টিক সেন্টার</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">নেত্রকোনার প্রধান ডায়াগনস্টিক সেন্টারসমূহ</p>
+                </div>
+                <a href="/diagnostic-centers/" class="text-xs sm:text-sm font-medium text-brand-700 hover:text-brand-800 whitespace-nowrap">সব দেখুন →</a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                {% for i in "123" %}
+                <a href="/diagnostic-centers/example/" class="group bg-white rounded-2xl border border-[var(--border)] p-4 sm:p-5 hover:border-brand-300 hover:shadow-md transition-all">
+                    <div class="flex items-start gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-700 grid place-items-center shrink-0 group-hover:bg-brand-100 transition">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                                <path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/>
+                            </svg>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="font-semibold text-slate-900 text-sm sm:text-base truncate">জনস্বাস্থ্য ডায়াগনস্টিক</h3>
+                            <p class="text-xs text-slate-500 mt-0.5 truncate">কলেজ রোড, নেত্রকোনা সদর</p>
+                            <div class="mt-2 flex flex-wrap gap-1">
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-medium">১৫+ ডাক্তার</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">সকাল ৮টা - রাত ১০টা</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- ---------------------------------------------------------- -->
+        <!-- EMERGENCY INFO                                            -->
+        <!-- ---------------------------------------------------------- -->
+        <section id="emergency" class="max-w-6xl mx-auto px-4 sm:px-6 pb-8 sm:pb-12">
+            <div class="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-red-50 to-white border border-red-100 p-5 sm:p-8">
+                <div class="flex items-start gap-4 flex-col sm:flex-row">
+                    <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 grid place-items-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M12 8v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-base sm:text-xl font-bold text-slate-900">ইমার্জেন্সি যোগাযোগ</h2>
+                        <p class="text-xs sm:text-sm text-slate-600 mt-1">জরুরি প্রয়োজনে সরাসরি কল করুন</p>
+
+                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            <a href="tel:999" class="flex items-center justify-between gap-2 bg-white border border-red-200 rounded-xl px-4 py-3 hover:bg-red-50 transition">
+                                <div>
+                                    <div class="text-[11px] text-red-600 font-semibold">জাতীয় ইমার্জেন্সি</div>
+                                    <div class="text-base font-bold text-slate-900">৯৯৯</div>
+                                </div>
+                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                                    <path d="M3 5a2 2 0 0 1 2-2h3l2 5-2 1a12 12 0 0 0 6 6l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 5Z"/>
+                                </svg>
+                            </a>
+
+                            <a href="tel:+8801700000000" class="flex items-center justify-between gap-2 bg-white border border-[var(--border)] rounded-xl px-4 py-3 hover:bg-slate-50 transition">
+                                <div>
+                                    <div class="text-[11px] text-slate-500 font-semibold">অ্যাম্বুলেন্স</div>
+                                    <div class="text-base font-bold text-slate-900">০১৭xx-xxxxxx</div>
+                                </div>
+                                <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                                    <path d="M3 5a2 2 0 0 1 2-2h3l2 5-2 1a12 12 0 0 0 6 6l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 5Z"/>
+                                </svg>
+                            </a>
+
+                            <a href="tel:+8801700000000" class="flex items-center justify-between gap-2 bg-white border border-[var(--border)] rounded-xl px-4 py-3 hover:bg-slate-50 transition">
+                                <div>
+                                    <div class="text-[11px] text-slate-500 font-semibold">সদর হাসপাতাল</div>
+                                    <div class="text-base font-bold text-slate-900">০১৭xx-xxxxxx</div>
+                                </div>
+                                <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                                    <path d="M3 5a2 2 0 0 1 2-2h3l2 5-2 1a12 12 0 0 0 6 6l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 5Z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ============================================================ -->
+    <!-- FOOTER                                                        -->
+    <!-- ============================================================ -->
+    <footer class="mt-auto bg-slate-900 text-slate-300">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
+                <div class="col-span-2 sm:col-span-1">
+                    <div class="flex items-center gap-2 text-white">
+                        <div class="w-8 h-8 rounded-lg bg-brand-600 grid place-items-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+                                <path d="M12 3v18M3 12h18"/>
+                            </svg>
+                        </div>
+                        <span class="font-bold">নেত্রকোনা ডক্টর</span>
+                    </div>
+                    <p class="text-xs mt-3 text-slate-400 leading-relaxed">
+                        নেত্রকোনা জেলার মানুষের জন্য একটি নির্ভরযোগ্য ডাক্তার ও ডায়াগনস্টিক ডিরেক্টরি।
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-semibold text-white mb-3">দ্রুত লিঙ্ক</h3>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="/doctors/" class="hover:text-brand-300 transition">ডাক্তার</a></li>
+                        <li><a href="/specialists/" class="hover:text-brand-300 transition">বিশেষজ্ঞ</a></li>
+                        <li><a href="/diagnostic-centers/" class="hover:text-brand-300 transition">ডায়াগনস্টিক সেন্টার</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-semibold text-white mb-3">সহায়তা</h3>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="#" class="hover:text-brand-300 transition">আমাদের সম্পর্কে</a></li>
+                        <li><a href="#" class="hover:text-brand-300 transition">যোগাযোগ</a></li>
+                        <li><a href="#" class="hover:text-brand-300 transition">প্রাইভেসি পলিসি</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-semibold text-white mb-3">যোগাযোগ</h3>
+                    <ul class="space-y-2 text-xs text-slate-400">
+                        <li>নেত্রকোনা, বাংলাদেশ</li>
+                        <li><a href="mailto:info@example.com" class="hover:text-brand-300 transition">info@example.com</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-500">
+                <p>© ২০২৬ নেত্রকোনা ডক্টর ডিরেক্টরি। সর্বস্বত্ব সংরক্ষিত।</p>
+                <p>তৈরি: ❤️ দিয়ে নেত্রকোনার মানুষের জন্য</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================================ -->
+    <!-- MOBILE MENU SCRIPT (vanilla JS)                              -->
+    <!-- ============================================================ -->
+    <script>
+        (function () {
+            'use strict';
+            const btn   = document.getElementById('menuBtn');
+            const panel = document.getElementById('mobileMenu');
+            if (!btn || !panel) return;
+
+            const openIcon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`;
+            const closeIcon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`;
+
+            function setOpen(open) {
+                panel.classList.toggle('hidden', !open);
+                btn.setAttribute('aria-expanded', String(open));
+                btn.innerHTML = open ? closeIcon : openIcon;
+                document.documentElement.style.overflow = open ? 'hidden' : '';
+            }
+
+            btn.addEventListener('click', () => {
+                setOpen(panel.classList.contains('hidden'));
+            });
+
+            // Close on link click (mobile)
+            panel.querySelectorAll('a').forEach(a => {
+                a.addEventListener('click', () => setOpen(false));
+            });
+
+            // Close on ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !panel.classList.contains('hidden')) {
+                    setOpen(false);
+                    btn.focus();
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

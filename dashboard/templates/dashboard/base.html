@@ -1,0 +1,249 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <title>{% block title %}Dashboard — Netrakona Doctor Directory{% endblock %}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        bangla: ['"Hind Siliguri"', 'system-ui', 'sans-serif'],
+                        english: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50:'#f0fdfa',100:'#ccfbf1',200:'#99f6e4',300:'#5eead4',
+                            400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e',
+                            800:'#115e59',900:'#134e4a',
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- GLOBAL INLINE CSS                                             -->
+    <!-- ============================================================ -->
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* Nav link styles */
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: background-color 0.15s ease, color 0.15s ease;
+            text-decoration: none;
+        }
+        .nav-link-default { color: rgb(203 213 225); }
+        .nav-link-default:hover {
+            background-color: rgb(30 41 59);
+            color: white;
+        }
+        .nav-link-active {
+            background-color: rgb(13 148 136);
+            color: white;
+        }
+        .nav-link-active:hover { background-color: rgb(15 118 110); }
+
+        /* Thin scrollbar */
+        .scrollbar-thin {
+            scrollbar-width: thin;
+            scrollbar-color: rgb(51 65 85) transparent;
+        }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background-color: rgb(51 65 85);
+            border-radius: 3px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background-color: rgb(71 85 105);
+        }
+
+        /* Focus visible */
+        :focus-visible {
+            outline: 2px solid rgb(20 184 166);
+            outline-offset: 2px;
+            border-radius: 6px;
+        }
+
+        /* Prevent body scroll when sidebar open on mobile */
+        body.sidebar-open { overflow: hidden; }
+
+        /* Tabular numbers */
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+
+        /* Fade-up animation */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fadeUp .4s ease-out both; }
+        .fade-up-1 { animation-delay: .05s; }
+        .fade-up-2 { animation-delay: .1s; }
+        .fade-up-3 { animation-delay: .15s; }
+
+        /* Line clamp */
+        .line-clamp-1 {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="h-full bg-slate-50 text-slate-900 antialiased">
+
+    <!-- ============================================================ -->
+    <!-- SIDEBAR BACKDROP (mobile only)                                -->
+    <!-- ============================================================ -->
+    <div id="sidebarBackdrop"
+         class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden lg:hidden
+                transition-opacity duration-300 opacity-0"
+         aria-hidden="true"></div>
+
+    <!-- ============================================================ -->
+    <!-- SIDEBAR                                                       -->
+    <!-- ============================================================ -->
+    {% include "dashboard/include/sidebar.html" %}
+
+    <!-- ============================================================ -->
+    <!-- MAIN CONTENT WRAPPER                                          -->
+    <!-- ============================================================ -->
+    <div class="lg:pl-64 min-h-full flex flex-col transition-[padding] duration-300">
+
+        <!-- TOPBAR -->
+        {% include "dashboard/include/topbar.html" %}
+
+        <!-- PAGE CONTENT -->
+        <main id="mainContent" class="flex-1 p-4 sm:p-6 lg:p-8">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="border-t border-slate-200 bg-white">
+            <div class="px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+                <div>© 2026 Netrakona Doctor Directory</div>
+                <div>Admin Panel v1.0</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- GLOBAL INLINE JS — Sidebar toggle                             -->
+    <!-- ============================================================ -->
+    <script>
+    (function () {
+        'use strict';
+
+        const sidebar  = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        const openBtn  = document.getElementById('sidebarOpenBtn');
+        const closeBtn = document.getElementById('sidebarCloseBtn');
+
+        if (!sidebar || !backdrop || !openBtn) return;
+
+        const LG_BREAKPOINT = 1024;
+        let isOpen = false;
+
+        function openSidebar() {
+            isOpen = true;
+            sidebar.classList.remove('-translate-x-full');
+            backdrop.classList.remove('hidden');
+            void backdrop.offsetWidth;
+            backdrop.classList.remove('opacity-0');
+            document.body.classList.add('sidebar-open');
+            openBtn.setAttribute('aria-expanded', 'true');
+            if (closeBtn) closeBtn.focus();
+        }
+
+        function closeSidebar(opts) {
+            opts = opts || {};
+            isOpen = false;
+            sidebar.classList.add('-translate-x-full');
+            backdrop.classList.add('opacity-0');
+            document.body.classList.remove('sidebar-open');
+            openBtn.setAttribute('aria-expanded', 'false');
+            setTimeout(function () {
+                if (!isOpen) backdrop.classList.add('hidden');
+            }, 250);
+            if (opts.restoreFocus !== false && window.innerWidth < LG_BREAKPOINT) {
+                openBtn.focus();
+            }
+        }
+
+        openBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            openSidebar();
+        });
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function () { closeSidebar(); });
+        }
+
+        backdrop.addEventListener('click', function () { closeSidebar(); });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && isOpen) closeSidebar();
+        });
+
+        sidebar.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (window.innerWidth < LG_BREAKPOINT) {
+                    closeSidebar({ restoreFocus: false });
+                }
+            });
+        });
+
+        let resizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function () {
+                if (window.innerWidth >= LG_BREAKPOINT && isOpen) {
+                    closeSidebar({ restoreFocus: false });
+                }
+            }, 150);
+        });
+
+        if (window.innerWidth < LG_BREAKPOINT) {
+            sidebar.classList.add('-translate-x-full');
+            backdrop.classList.add('hidden', 'opacity-0');
+        }
+    })();
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

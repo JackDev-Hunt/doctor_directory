@@ -1,0 +1,721 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Diagnostic Centers — Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================== -->
+<!-- HEADER                                                          -->
+<!-- ============================================================== -->
+<section class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+    <div>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">All Centers</h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Total {{ total }} — {{ active_count }} active
+        </p>
+    </div>
+    <button type="button"
+            id="openAddModalBtn"
+            class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:bg-brand-800
+                   text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition shadow-sm shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+        </svg>
+        New Center
+    </button>
+</section>
+
+<!-- ============================================================== -->
+<!-- KPI STRIP                                                       -->
+<!-- ============================================================== -->
+<section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <div class="text-xs text-slate-500">Total</div>
+        <div class="text-xl font-bold text-slate-900 tabular-nums mt-1">{{ total }}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <div class="text-xs text-slate-500">Active</div>
+        <div class="text-xl font-bold text-emerald-600 tabular-nums mt-1">{{ active_count }}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <div class="text-xs text-slate-500">Verified</div>
+        <div class="text-xl font-bold text-brand-600 tabular-nums mt-1">{{ verified_count }}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <div class="text-xs text-slate-500">Featured</div>
+        <div class="text-xl font-bold text-amber-600 tabular-nums mt-1">{{ featured_count }}</div>
+    </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- SEARCH + FILTERS                                                -->
+<!-- ============================================================== -->
+<section class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 mb-5">
+    <form method="get" class="flex flex-col lg:flex-row gap-3">
+
+        <div class="flex-1 relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
+                 fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+            </svg>
+            <input type="search" name="q" value="{{ q }}"
+                   placeholder="Search by name, area or phone..."
+                   class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-sm
+                          placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+        </div>
+
+        <select name="status"
+                class="px-3 py-2.5 rounded-xl border border-slate-200 text-sm bg-white cursor-pointer
+                       focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            <option value=""           {% if not status %}selected{% endif %}>All Status</option>
+            <option value="active"     {% if status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive"   {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+            <option value="verified"   {% if status == 'verified' %}selected{% endif %}>Verified</option>
+            <option value="unverified" {% if status == 'unverified' %}selected{% endif %}>Unverified</option>
+            <option value="featured"   {% if status == 'featured' %}selected{% endif %}>Featured</option>
+        </select>
+
+        <select name="sort"
+                class="px-3 py-2.5 rounded-xl border border-slate-200 text-sm bg-white cursor-pointer
+                       focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            <option value="-created_at" {% if sort == '-created_at' %}selected{% endif %}>Newest first</option>
+            <option value="created_at"  {% if sort == 'created_at' %}selected{% endif %}>Oldest first</option>
+            <option value="name"        {% if sort == 'name' %}selected{% endif %}>Name (A-Z)</option>
+            <option value="-name"       {% if sort == '-name' %}selected{% endif %}>Name (Z-A)</option>
+            <option value="-updated_at" {% if sort == '-updated_at' %}selected{% endif %}>Recently updated</option>
+        </select>
+
+        <div class="flex gap-2">
+            <button type="submit"
+                    class="flex-1 lg:flex-none inline-flex items-center justify-center gap-1.5
+                           bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition">
+                Filter
+            </button>
+            {% if q or status or sort != '-created_at' %}
+            <a href="{% url 'dashboard:center_list' %}"
+               class="inline-flex items-center justify-center gap-1.5
+                      border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium
+                      px-4 py-2.5 rounded-xl transition">
+                Reset
+            </a>
+            {% endif %}
+        </div>
+    </form>
+</section>
+
+<!-- ============================================================== -->
+<!-- RESULTS GRID                                                    -->
+<!-- ============================================================== -->
+{% if page_obj.object_list %}
+
+<section id="centerGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+    {% for center in page_obj %}
+    <article class="center-card bg-white rounded-2xl border border-slate-200 overflow-hidden
+                    hover:shadow-lg hover:shadow-slate-900/5 hover:border-brand-200 transition-all"
+             data-center-id="{{ center.pk }}">
+
+        <!-- Header with cover or logo -->
+        <div class="relative h-24 bg-gradient-to-br from-brand-50 to-brand-100">
+            {% if center.cover %}
+                <img src="{{ center.cover.url }}" alt="{{ center.name_bn }}" class="w-full h-full object-cover">
+            {% elif center.logo %}
+                <div class="w-full h-full grid place-items-center">
+                    <img src="{{ center.logo.url }}" alt="{{ center.name_bn }}" class="w-16 h-16 object-contain rounded-xl bg-white p-1.5 shadow-sm">
+                </div>
+            {% else %}
+                <div class="w-full h-full grid place-items-center">
+                    <svg class="w-10 h-10 text-brand-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round">
+                        <path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/>
+                    </svg>
+                </div>
+            {% endif %}
+
+            <div class="absolute top-2.5 right-2.5 flex flex-wrap gap-1 justify-end">
+                {% if center.is_verified %}
+                <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-600 text-white shadow-sm">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.7-9.3a1 1 0 0 0-1.4-1.4L9 10.6 7.7 9.3a1 1 0 1 0-1.4 1.4l2 2a1 1 0 0 0 1.4 0l4-4Z" clip-rule="evenodd"/>
+                    </svg>
+                    Verified
+                </span>
+                {% endif %}
+                {% if center.is_featured %}
+                <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500 text-white shadow-sm">
+                    ⭐ Featured
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="p-4">
+            <h3 class="font-semibold text-slate-900 text-[15px] leading-tight line-clamp-1">{{ center.name_bn }}</h3>
+            <p class="text-xs text-slate-500 mt-0.5 line-clamp-1">{{ center.name_en }}</p>
+
+            {% if center.area_bn %}
+            <div class="mt-2.5 flex items-start gap-1.5 text-xs text-slate-600">
+                <svg class="w-3.5 h-3.5 shrink-0 mt-0.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M17.657 16.657 13.414 20.9a2 2 0 0 1-2.828 0l-4.243-4.243a8 8 0 1 1 11.314 0Z"/><circle cx="12" cy="10" r="2.5"/>
+                </svg>
+                <span class="line-clamp-1">{{ center.area_bn }}</span>
+            </div>
+            {% endif %}
+
+            {% if center.phone %}
+            <div class="mt-1.5 flex items-start gap-1.5 text-xs text-slate-600">
+                <svg class="w-3.5 h-3.5 shrink-0 mt-0.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M3 5a2 2 0 0 1 2-2h3l2 5-2 1a12 12 0 0 0 6 6l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 5Z"/>
+                </svg>
+                <a href="tel:{{ center.phone }}" class="hover:text-brand-700 transition">{{ center.phone }}</a>
+            </div>
+            {% endif %}
+
+            <div class="mt-3 flex items-center gap-2 flex-wrap text-[11px]">
+                <span class="inline-flex items-center gap-1 text-slate-500">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                        <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>
+                    </svg>
+                    {{ center.doctor_count }} doctor{{ center.doctor_count|pluralize }}
+                </span>
+                {% if not center.is_active %}
+                <span class="inline-flex items-center gap-1 text-red-600 font-medium">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                    Inactive
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="grid grid-cols-3 border-t border-slate-100 divide-x divide-slate-100 text-xs font-medium">
+            <a href="{% url 'dashboard:center_edit' center.pk %}"
+               class="py-2.5 text-center text-slate-700 hover:bg-slate-50 transition inline-flex items-center justify-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"/>
+                </svg>
+                Edit
+            </a>
+
+            <button type="button"
+                    data-delete-url="{% url 'dashboard:center_delete' center.pk %}"
+                    data-delete-name="{{ center.name_bn }}"
+                    class="delete-btn py-2.5 text-center text-red-600 hover:bg-red-50 transition inline-flex items-center justify-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6"/>
+                </svg>
+                Delete
+            </button>
+
+            <a href="/diagnostic-centers/{{ center.slug }}/" target="_blank"
+               class="py-2.5 text-center text-slate-700 hover:bg-slate-50 transition inline-flex items-center justify-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M14 3h7v7M10 14 21 3"/>
+                </svg>
+                View
+            </a>
+        </div>
+    </article>
+    {% endfor %}
+
+</section>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav class="mt-6 flex items-center justify-center gap-1.5" aria-label="Pagination">
+    {% if page_obj.has_previous %}
+    <a href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort={{ sort }}&page={{ page_obj.previous_page_number }}"
+       class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 hover:bg-slate-50 transition" aria-label="Previous">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M15 18l-6-6 6-6"/>
+        </svg>
+    </a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}
+        <span class="w-9 h-9 grid place-items-center rounded-lg bg-brand-600 text-white text-sm font-semibold">{{ num }}</span>
+        {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+        <a href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort={{ sort }}&page={{ num }}"
+           class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 hover:bg-slate-50 text-sm font-medium text-slate-700 transition">
+            {{ num }}
+        </a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort={{ sort }}&page={{ page_obj.next_page_number }}"
+       class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 hover:bg-slate-50 transition" aria-label="Next">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M9 18l6-6-6-6"/>
+        </svg>
+    </a>
+    {% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+
+<!-- ============================================================== -->
+<!-- EMPTY STATE                                                     -->
+<!-- ============================================================== -->
+<section class="bg-white rounded-2xl border border-slate-200 p-10 text-center">
+    <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 grid place-items-center mx-auto mb-4">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/>
+        </svg>
+    </div>
+    <h3 class="font-semibold text-slate-900 text-base">
+        {% if q or status %} No results found {% else %} No centers added yet {% endif %}
+    </h3>
+    <p class="text-sm text-slate-500 mt-1.5 max-w-sm mx-auto">
+        {% if q or status %} Try changing the filters and search again. {% else %} Click "New Center" to get started. {% endif %}
+    </p>
+    <div class="mt-5 flex items-center justify-center gap-2">
+        {% if q or status %}
+        <a href="{% url 'dashboard:center_list' %}"
+           class="inline-flex items-center gap-1.5 border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium px-4 py-2.5 rounded-xl transition">
+            Reset
+        </a>
+        {% endif %}
+        <button type="button" id="openAddModalBtnEmpty"
+                class="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14"/>
+            </svg>
+            New Center
+        </button>
+    </div>
+</section>
+
+{% endif %}
+
+
+<!-- ============================================================== -->
+<!-- ADD MODAL — New Diagnostic Center                              -->
+<!-- ============================================================== -->
+<div id="addModal" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" data-close-add-modal></div>
+
+    <div class="relative min-h-full flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl my-4">
+
+            <!-- Modal header -->
+            <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-200 sticky top-0 bg-white rounded-t-2xl z-10">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-700 grid place-items-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/>
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 id="addModalTitle" class="font-bold text-slate-900 text-base truncate">New Diagnostic Center</h3>
+                        <p class="text-xs text-slate-500 -mt-0.5">Start with basic information</p>
+                    </div>
+                </div>
+                <button type="button"
+                        data-close-add-modal
+                        class="w-8 h-8 grid place-items-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition shrink-0"
+                        aria-label="Close">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+                        <path d="M6 6l12 12M18 6 6 18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal body / form -->
+            <form id="addCenterForm" method="post" enctype="multipart/form-data"
+                  action="{% url 'dashboard:center_create_ajax' %}">
+                {% csrf_token %}
+
+                <div class="px-5 sm:px-6 py-5 space-y-4 max-h-[65vh] overflow-y-auto">
+
+                    <!-- Error box -->
+                    <div id="addFormErrors" class="hidden rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm p-3.5">
+                        <div class="font-semibold mb-1">Something went wrong:</div>
+                        <ul class="list-disc pl-5 space-y-0.5 text-[13px]" id="addFormErrorList"></ul>
+                    </div>
+
+                    <!-- Names -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="add_name_bn" class="block text-sm font-medium text-slate-700 mb-1.5">
+                                Name (Bangla) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="name_bn" id="add_name_bn" required
+                                   placeholder="e.g. জনস্বাস্থ্য ডায়াগনস্টিক"
+                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                                          focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+                        </div>
+                        <div>
+                            <label for="add_name_en" class="block text-sm font-medium text-slate-700 mb-1.5">
+                                Name (English) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="name_en" id="add_name_en" required
+                                   placeholder="e.g. Janasasthya Diagnostic"
+                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                                          focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+                        </div>
+                    </div>
+
+                    <!-- Area -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="add_area_bn" class="block text-sm font-medium text-slate-700 mb-1.5">Area (Bangla)</label>
+                            <input type="text" name="area_bn" id="add_area_bn"
+                                   placeholder="e.g. সদর"
+                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                                          focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+                        </div>
+                        <div>
+                            <label for="add_area_en" class="block text-sm font-medium text-slate-700 mb-1.5">Area (English)</label>
+                            <input type="text" name="area_en" id="add_area_en"
+                                   placeholder="e.g. Sadar"
+                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                                          focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div>
+                        <label for="add_address_bn" class="block text-sm font-medium text-slate-700 mb-1.5">Address (Bangla)</label>
+                        <input type="text" name="address_bn" id="add_address_bn"
+                               placeholder="e.g. কলেজ রোড, নেত্রকোনা সদর"
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                                      focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+                    </div>
+
+                    <div>
+                        <label for="add_address_en" class="block text-sm font-medium text-slate-700 mb-1.5">Address (English)</label>
+                        <input type="text" name="address_en" id="add_address_en"
+                               placeholder="e.g. College Road, Netrakona Sadar"
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                                      focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="add_phone" class="block text-sm font-medium text-slate-700 mb-1.5">Phone</label>
+                            <input type="tel" name="phone" id="add_phone"
+                                   placeholder="017xxxxxxxx"
+                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                                          focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+                        </div>
+                        <div>
+                            <label for="add_phone_alt" class="block text-sm font-medium text-slate-700 mb-1.5">Alternate Phone</label>
+                            <input type="tel" name="phone_alt" id="add_phone_alt"
+                                   placeholder="017xxxxxxxx"
+                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                                          focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+                        </div>
+                    </div>
+
+                    <!-- Opening hours -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="add_opening_hours_bn" class="block text-sm font-medium text-slate-700 mb-1.5">Opening Hours (Bangla)</label>
+                            <input type="text" name="opening_hours_bn" id="add_opening_hours_bn"
+                                   placeholder="e.g. সকাল ৮টা – রাত ১০টা"
+                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                                          focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+                        </div>
+                        <div>
+                            <label for="add_opening_hours_en" class="block text-sm font-medium text-slate-700 mb-1.5">Opening Hours (English)</label>
+                            <input type="text" name="opening_hours_en" id="add_opening_hours_en"
+                                   placeholder="8 AM – 10 PM"
+                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                                          focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+                        </div>
+                    </div>
+
+                    <!-- Logo & Cover -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="add_logo" class="block text-sm font-medium text-slate-700 mb-1.5">Logo (optional)</label>
+                            <input type="file" name="logo" id="add_logo" accept="image/*"
+                                   class="w-full text-xs file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0
+                                          file:bg-brand-50 file:text-brand-700 file:text-xs file:font-medium
+                                          hover:file:bg-brand-100 file:cursor-pointer text-slate-600 cursor-pointer">
+                        </div>
+                        <div>
+                            <label for="add_cover" class="block text-sm font-medium text-slate-700 mb-1.5">Cover Image (optional)</label>
+                            <input type="file" name="cover" id="add_cover" accept="image/*"
+                                   class="w-full text-xs file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0
+                                          file:bg-brand-50 file:text-brand-700 file:text-xs file:font-medium
+                                          hover:file:bg-brand-100 file:cursor-pointer text-slate-600 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="pt-2">
+                        <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Status</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <label class="flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                                <input type="checkbox" name="is_active" checked
+                                       class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                                <span class="text-sm text-slate-700">Active</span>
+                            </label>
+                            <label class="flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                                <input type="checkbox" name="is_verified"
+                                       class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                                <span class="text-sm text-slate-700">Verified</span>
+                            </label>
+                            <label class="flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                                <input type="checkbox" name="is_featured"
+                                       class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                                <span class="text-sm text-slate-700">Featured</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="px-5 sm:px-6 py-4 border-t border-slate-200 flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5
+                            bg-slate-50 rounded-b-2xl sticky bottom-0">
+                    <button type="button" data-close-add-modal
+                            class="text-center border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium px-5 py-2.5 rounded-xl transition">
+                        Cancel
+                    </button>
+                    <button type="submit" id="addSubmitBtn"
+                            class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:bg-brand-800
+                                   disabled:opacity-60 disabled:cursor-not-allowed
+                                   text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition shadow-sm">
+                        <span id="addSubmitText">Save</span>
+                        <svg id="addSubmitSpinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================== -->
+<!-- DELETE MODAL                                                    -->
+<!-- ============================================================== -->
+<div id="deleteModal" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" data-close-modal></div>
+    <div class="relative min-h-full flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl">
+            <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-600 grid place-items-center mx-auto mb-4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M12 8v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+                </svg>
+            </div>
+            <h3 id="deleteModalTitle" class="text-base font-bold text-slate-900 text-center">Confirm Delete</h3>
+            <p class="text-sm text-slate-500 text-center mt-1.5">
+                Are you sure you want to delete <strong id="deleteTargetName" class="text-slate-900"></strong>?
+                This action cannot be undone.
+            </p>
+            <form id="deleteForm" method="post" class="mt-5 flex gap-2">
+                {% csrf_token %}
+                <button type="button" data-close-modal
+                        class="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium py-2.5 rounded-xl transition">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2.5 rounded-xl transition">
+                    Yes, Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================== -->
+<!-- TOASTS                                                          -->
+<!-- ============================================================== -->
+<div id="toastContainer" class="fixed top-20 right-4 z-[70] space-y-2 max-w-sm"></div>
+
+{% if messages %}
+<script>
+    window.__INITIAL_MESSAGES__ = [
+        {% for m in messages %}
+        { tags: "{{ m.tags|escapejs }}", text: "{{ m|escapejs }}" }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+</script>
+{% endif %}
+
+
+<!-- ============================================================== -->
+<!-- INLINE JS                                                       -->
+<!-- ============================================================== -->
+<script>
+(function () {
+    'use strict';
+
+    function getCookie(name) {
+        const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return m ? m.pop() : '';
+    }
+    const CSRF = getCookie('csrftoken');
+
+    const body = document.body;
+
+    function lockScroll(lock) {
+        body.style.overflow = lock ? 'hidden' : '';
+    }
+
+    // Toast helper
+    const toastContainer = document.getElementById('toastContainer');
+
+    function showToast(text, tags) {
+        tags = tags || 'success';
+        const colorMap = {
+            success: { border: 'border-l-emerald-500', icon: 'text-emerald-600' },
+            error:   { border: 'border-l-red-500',     icon: 'text-red-600' },
+            warning: { border: 'border-l-amber-500',   icon: 'text-amber-600' },
+            info:    { border: 'border-l-brand-500',   icon: 'text-brand-600' },
+        };
+        const c = colorMap[tags] || colorMap.info;
+
+        const el = document.createElement('div');
+        el.className = `toast fade-up bg-white rounded-xl border border-slate-200 shadow-lg p-3.5 flex items-start gap-2.5 ${c.border}`;
+        el.innerHTML = `
+            <svg class="w-4 h-4 shrink-0 mt-0.5 ${c.icon}" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+                <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>
+            </svg>
+            <div class="text-xs sm:text-sm text-slate-700 leading-relaxed flex-1"></div>
+        `;
+        el.querySelector('div').textContent = text;
+        toastContainer.appendChild(el);
+
+        setTimeout(() => {
+            el.style.transition = 'opacity .3s, transform .3s';
+            el.style.opacity = '0';
+            el.style.transform = 'translateX(20px)';
+            setTimeout(() => el.remove(), 300);
+        }, 4000);
+    }
+
+    if (window.__INITIAL_MESSAGES__) {
+        window.__INITIAL_MESSAGES__.forEach(m => showToast(m.text, m.tags));
+    }
+
+    // ADD MODAL
+    const addModal     = document.getElementById('addModal');
+    const addForm      = document.getElementById('addCenterForm');
+    const addOpenBtn   = document.getElementById('openAddModalBtn');
+    const addOpenBtn2  = document.getElementById('openAddModalBtnEmpty');
+    const addSubmitBtn = document.getElementById('addSubmitBtn');
+    const addSubmitTxt = document.getElementById('addSubmitText');
+    const addSubmitSp  = document.getElementById('addSubmitSpinner');
+    const addErrBox    = document.getElementById('addFormErrors');
+    const addErrList   = document.getElementById('addFormErrorList');
+
+    function openAddModal() {
+        addModal.classList.remove('hidden');
+        lockScroll(true);
+        addErrBox.classList.add('hidden');
+        addErrList.innerHTML = '';
+        const first = addModal.querySelector('input[name="name_bn"]');
+        if (first) setTimeout(() => first.focus(), 100);
+    }
+    function closeAddModal() {
+        addModal.classList.add('hidden');
+        lockScroll(false);
+        addForm.reset();
+        addErrBox.classList.add('hidden');
+        addErrList.innerHTML = '';
+    }
+
+    if (addOpenBtn)  addOpenBtn.addEventListener('click', openAddModal);
+    if (addOpenBtn2) addOpenBtn2.addEventListener('click', openAddModal);
+
+    addModal.querySelectorAll('[data-close-add-modal]').forEach(el => {
+        el.addEventListener('click', closeAddModal);
+    });
+
+    // ADD FORM SUBMIT (AJAX)
+    if (addForm) {
+        addForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            addErrBox.classList.add('hidden');
+            addErrList.innerHTML = '';
+
+            addSubmitBtn.disabled = true;
+            addSubmitTxt.textContent = 'Saving...';
+            addSubmitSp.classList.remove('hidden');
+
+            try {
+                const fd = new FormData(addForm);
+                const res = await fetch(addForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': CSRF,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: fd,
+                });
+
+                let payload = {};
+                try { payload = await res.json(); } catch (_) {}
+
+                if (!res.ok || !payload.ok) {
+                    const errs = (payload && payload.errors) || ['Something went wrong. Please try again.'];
+                    addErrList.innerHTML = errs.map(x => `<li>${escapeHtml(x)}</li>`).join('');
+                    addErrBox.classList.remove('hidden');
+                    addErrBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    closeAddModal();
+                    showToast(payload.message || 'Added successfully.', 'success');
+                    setTimeout(() => window.location.reload(), 700);
+                }
+            } catch (err) {
+                addErrList.innerHTML = `<li>Network error. Please try again.</li>`;
+                addErrBox.classList.remove('hidden');
+            } finally {
+                addSubmitBtn.disabled = false;
+                addSubmitTxt.textContent = 'Save';
+                addSubmitSp.classList.add('hidden');
+            }
+        });
+    }
+
+    // ESC to close modals
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        if (!addModal.classList.contains('hidden')) closeAddModal();
+        if (!deleteModal.classList.contains('hidden')) closeDeleteModal();
+    });
+
+    // DELETE MODAL
+    const deleteModal  = document.getElementById('deleteModal');
+    const deleteForm   = document.getElementById('deleteForm');
+    const deleteNameEl = document.getElementById('deleteTargetName');
+
+    function openDeleteModal(url, name) {
+        deleteForm.action = url;
+        deleteNameEl.textContent = name;
+        deleteModal.classList.remove('hidden');
+        lockScroll(true);
+    }
+    function closeDeleteModal() {
+        deleteModal.classList.add('hidden');
+        lockScroll(false);
+    }
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => openDeleteModal(btn.dataset.deleteUrl, btn.dataset.deleteName));
+    });
+    deleteModal.querySelectorAll('[data-close-modal]').forEach(el => {
+        el.addEventListener('click', closeDeleteModal);
+    });
+
+    // HTML escape
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, ch => ({
+            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+        }[ch]));
+    }
+})();
+</script>
+
+{% endblock %}

@@ -1,12 +1,183 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard — Netrakona Doctor Directory</title>
-</head>
-<body style="font-family: sans-serif; padding: 2rem;">
-    <h1>Admin Dashboard</h1>
-    <p>Part 3 এ এখানে custom dashboard বানানো হবে।</p>
-    <p><a href="/admin/">Django Admin এ যান →</a></p>
-</body>
-</html>
+{% extends "dashboard/base.html" %}
+
+{% block title %}Dashboard — Netrakona Doctor Directory{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================== -->
+<!-- WELCOME CARD                                                    -->
+<!-- ============================================================== -->
+<section class="mb-6 fade-up">
+    <div class="bg-gradient-to-br from-brand-600 to-brand-700 rounded-2xl p-5 sm:p-7 text-white shadow-lg shadow-brand-900/10 relative overflow-hidden">
+        <div aria-hidden="true" class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-white/10 blur-2xl"></div>
+        <div aria-hidden="true" class="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-white/5 blur-2xl"></div>
+
+        <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="min-w-0">
+                <p class="text-xs text-brand-100 font-medium mb-1">Welcome back 👋</p>
+                <h2 class="text-xl sm:text-2xl font-bold truncate">
+                    {{ request.user.username }}
+                </h2>
+                <p class="text-sm text-brand-50 mt-1.5 max-w-md">
+                    You're in the Netrakona Doctor Directory admin panel.
+                    Manage doctors, specialists, centers, and chambers — all from here.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap gap-2 shrink-0">
+                <a href="#"
+                   class="inline-flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white
+                          text-xs font-semibold px-3.5 py-2 rounded-lg transition border border-white/20 opacity-70 cursor-not-allowed"
+                   title="Coming soon" onclick="return false;">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    New Doctor
+                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-white/20 font-semibold">soon</span>
+                </a>
+                <a href="{% url 'dashboard:center_create' %}"
+                   class="inline-flex items-center gap-1.5 bg-white text-brand-700 hover:bg-brand-50
+                          text-xs font-semibold px-3.5 py-2 rounded-lg transition shadow-sm">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    New Center
+                </a>
+                <a href="/" target="_blank"
+                   class="inline-flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white
+                          text-xs font-semibold px-3.5 py-2 rounded-lg transition border border-white/20">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                        <path d="M14 3h7v7M10 14 21 3M21 14v7H3V3h7"/>
+                    </svg>
+                    View Site
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- STATS GRID                                                      -->
+<!-- ============================================================== -->
+<section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 fade-up fade-up-1">
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 hover:shadow-md hover:shadow-slate-900/5 transition">
+        <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-700 grid place-items-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>
+            </svg>
+        </div>
+        <div class="mt-4">
+            <div class="text-2xl font-bold text-slate-900 tabular-nums">—</div>
+            <div class="text-xs text-slate-500 mt-0.5">Total Doctors</div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 hover:shadow-md hover:shadow-slate-900/5 transition">
+        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 grid place-items-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                <path d="M9 12l2 2 4-4M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"/>
+            </svg>
+        </div>
+        <div class="mt-4">
+            <div class="text-2xl font-bold text-slate-900 tabular-nums">—</div>
+            <div class="text-xs text-slate-500 mt-0.5">Specialists</div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 hover:shadow-md hover:shadow-slate-900/5 transition">
+        <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 grid place-items-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                <path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/>
+            </svg>
+        </div>
+        <div class="mt-4">
+            <div class="text-2xl font-bold text-slate-900 tabular-nums">—</div>
+            <div class="text-xs text-slate-500 mt-0.5">Diagnostic Centers</div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 hover:shadow-md hover:shadow-slate-900/5 transition">
+        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 grid place-items-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+            </svg>
+        </div>
+        <div class="mt-4">
+            <div class="text-2xl font-bold text-slate-900 tabular-nums">—</div>
+            <div class="text-xs text-slate-500 mt-0.5">Chambers</div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- QUICK ACTIONS                                                   -->
+<!-- ============================================================== -->
+<section class="grid md:grid-cols-2 gap-4 mb-6 fade-up fade-up-2">
+
+    <!-- Add Doctor (coming soon) -->
+    <a href="#"
+       class="group bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4
+              opacity-70 cursor-not-allowed transition"
+       title="Coming soon" onclick="return false;">
+        <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-700 grid place-items-center shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>
+            </svg>
+        </div>
+        <div class="min-w-0 flex-1">
+            <div class="font-semibold text-slate-900 text-sm sm:text-base">Add New Doctor</div>
+            <div class="text-xs text-slate-500 mt-0.5">Name, specialty, chambers</div>
+        </div>
+        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">soon</span>
+    </a>
+
+    <!-- Diagnostic Center (LIVE) -->
+    <a href="{% url 'dashboard:center_create' %}"
+       class="group bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4
+              hover:border-purple-300 hover:shadow-md hover:shadow-purple-900/5 transition">
+        <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-700 grid place-items-center shrink-0
+                    group-hover:bg-purple-600 group-hover:text-white transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                <path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/>
+            </svg>
+        </div>
+        <div class="min-w-0 flex-1">
+            <div class="font-semibold text-slate-900 text-sm sm:text-base">Add Diagnostic Center</div>
+            <div class="text-xs text-slate-500 mt-0.5">Centers and chambers</div>
+        </div>
+        <svg class="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M5 12h14M13 5l7 7-7 7"/>
+        </svg>
+    </a>
+</section>
+
+<!-- ============================================================== -->
+<!-- INFO CARD                                                       -->
+<!-- ============================================================== -->
+<section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 fade-up fade-up-3">
+    <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 grid place-items-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                <circle cx="12" cy="12" r="9"/><path d="M12 16v-4m0-4h.01"/>
+            </svg>
+        </div>
+        <div class="min-w-0">
+            <h3 class="font-semibold text-slate-900 text-sm sm:text-base">What's next</h3>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed">
+                We're building the <strong>Doctor Management</strong> system next — where you'll
+                be able to add, edit, and delete doctors easily. Meanwhile, you can manage
+                diagnostic centers with the button below.
+            </p>
+            <a href="{% url 'dashboard:center_list' %}"
+               class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-700 hover:text-brand-800 mt-3 transition">
+                View Diagnostic Centers
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M5 12h14M13 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

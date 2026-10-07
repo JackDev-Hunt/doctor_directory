@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0d9488">
+    <title>লগইন — নেত্রকোনা ডক্টর ডিরেক্টরি</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CDN (temporary) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        bangla: ['"Hind Siliguri"', 'system-ui', 'sans-serif'],
+                        english: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50:'#f0fdfa',100:'#ccfbf1',200:'#99f6e4',300:'#5eead4',
+                            400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e',
+                            800:'#115e59',900:'#134e4a',
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        body { font-family: 'Hind Siliguri', system-ui, sans-serif; }
+        :focus-visible { outline: 2px solid #0d9488; outline-offset: 2px; }
+    </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-b from-brand-50 via-white to-white flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md">
+
+        <!-- Logo / Brand -->
+        <div class="text-center mb-6">
+            <a href="/" class="inline-flex items-center gap-2.5 group">
+                <div class="w-11 h-11 rounded-2xl bg-brand-600 grid place-items-center text-white shadow-md shadow-brand-900/10 group-hover:scale-105 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+                        <path d="M12 3v18M3 12h18"/>
+                    </svg>
+                </div>
+                <div class="text-left leading-tight">
+                    <div class="text-base font-bold text-slate-900">নেত্রকোনা ডক্টর</div>
+                    <div class="text-[11px] text-slate-500 -mt-0.5">Admin Panel</div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-lg shadow-brand-900/5 p-6 sm:p-7">
+
+            <div class="mb-6">
+                <h1 class="text-xl font-bold text-slate-900">লগইন করুন</h1>
+                <p class="text-sm text-slate-500 mt-1">অ্যাডমিন প্যানেলে প্রবেশ করতে আপনার তথ্য দিন</p>
+            </div>
+
+            <!-- Error messages -->
+            {% if form.errors %}
+            <div role="alert" class="mb-5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm p-3.5 flex items-start gap-2.5">
+                <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/>
+                </svg>
+                <div>
+                    <div class="font-semibold">লগইন ব্যর্থ হয়েছে</div>
+                    <div class="mt-0.5 text-[13px]">ইউজারনেম বা পাসওয়ার্ড সঠিক নয়। আবার চেষ্টা করুন।</div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if next and user.is_authenticated %}
+            <div role="alert" class="mb-5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm p-3.5">
+                আপনার অ্যাকাউন্টে এই পেজে প্রবেশের অনুমতি নেই।
+            </div>
+            {% endif %}
+
+            <!-- Form -->
+            <form method="post" novalidate class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <!-- Username -->
+                <div>
+                    <label for="id_username" class="block text-sm font-medium text-slate-700 mb-1.5">
+                        ইউজারনেম
+                    </label>
+                    <input
+                        type="text"
+                        name="username"
+                        id="id_username"
+                        autocomplete="username"
+                        autofocus
+                        required
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400
+                               focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition"
+                        placeholder="আপনার ইউজারনেম">
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="id_password" class="block text-sm font-medium text-slate-700 mb-1.5">
+                        পাসওয়ার্ড
+                    </label>
+                    <input
+                        type="password"
+                        name="password"
+                        id="id_password"
+                        autocomplete="current-password"
+                        required
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400
+                               focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition"
+                        placeholder="••••••••">
+                </div>
+
+                <!-- Submit -->
+                <button type="submit"
+                        class="w-full bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-semibold
+                               py-3 rounded-xl transition shadow-sm shadow-brand-900/10 mt-2">
+                    লগইন
+                </button>
+            </form>
+        </div>
+
+        <!-- Footer links -->
+        <div class="mt-5 text-center text-xs text-slate-500">
+            <a href="/" class="hover:text-brand-700 transition">← পাবলিক সাইটে ফিরে যান</a>
+        </div>
+    </div>
+
+</body>
+</html>
