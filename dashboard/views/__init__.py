@@ -1,10 +1,5 @@
 """
 Dashboard views package.
-
-সব public views এখানে import করা হয় যাতে:
-  from dashboard.views import dashboard
-  from dashboard.views import diagnostic_center_views
-— এভাবে ব্যবহার করা যায়।
 """
 
 # ---- Dashboard home ----
@@ -20,24 +15,34 @@ from .diagnostic_center_views import (  # noqa: F401
     center_toggle,
 )
 
-# Sub-modules (for `views.dashboard.index` style access)
+# ---- Doctor views ----
+from .doctor_views import (  # noqa: F401
+    doctor_list,
+    doctor_create,
+    doctor_edit,
+    doctor_delete,
+)
+
+# ---- Specialist views ----
+from .specialist_views import (  # noqa: F401
+    specialist_list,
+    specialist_create,
+    specialist_edit,
+    specialist_delete,
+)
+
+# Sub-modules
 from . import dashboard                 # noqa: F401
 from . import diagnostic_center_views   # noqa: F401
+from . import doctor_views              # noqa: F401
+from . import specialist_views          # noqa: F401
 
 
 __all__ = [
-    # Home
     "index",
-
-    # Diagnostic center
-    "center_list",
-    "center_create",
-    "center_create_ajax",
-    "center_edit",
-    "center_delete",
-    "center_toggle",
-
-    # Modules
-    "dashboard",
-    "diagnostic_center_views",
+    "center_list", "center_create", "center_create_ajax",
+    "center_edit", "center_delete", "center_toggle",
+    "doctor_list", "doctor_create", "doctor_edit", "doctor_delete",
+    "specialist_list", "specialist_create", "specialist_edit", "specialist_delete",
+    "dashboard", "diagnostic_center_views", "doctor_views", "specialist_views",
 ]

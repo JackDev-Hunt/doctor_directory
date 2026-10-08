@@ -1,0 +1,297 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Doctors — Dashboard{% endblock %}
+
+{% block content %}
+
+<section class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+    <div>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">All Doctors</h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Total {{ total }} — {{ active_count }} active
+        </p>
+    </div>
+    <a href="{% url 'dashboard:doctor_create' %}"
+       class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700
+              text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition shadow-sm shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+        </svg>
+        New Doctor
+    </a>
+</section>
+
+<section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <div class="text-xs text-slate-500">Total</div>
+        <div class="text-xl font-bold text-slate-900 tabular-nums mt-1">{{ total }}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <div class="text-xs text-slate-500">Active</div>
+        <div class="text-xl font-bold text-emerald-600 tabular-nums mt-1">{{ active_count }}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <div class="text-xs text-slate-500">Verified</div>
+        <div class="text-xl font-bold text-brand-600 tabular-nums mt-1">{{ verified_count }}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <div class="text-xs text-slate-500">Featured</div>
+        <div class="text-xl font-bold text-amber-600 tabular-nums mt-1">{{ featured_count }}</div>
+    </div>
+</section>
+
+<section class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 mb-5">
+    <form method="get" class="flex flex-col lg:flex-row gap-3">
+        <div class="flex-1 relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
+                 fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+            </svg>
+            <input type="search" name="q" value="{{ q }}"
+                   placeholder="Search by name, phone, BMDC..."
+                   class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-sm
+                          focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+        </div>
+
+        <select name="specialist"
+                class="px-3 py-2.5 rounded-xl border border-slate-200 text-sm bg-white cursor-pointer
+                       focus:border-brand-500 focus:outline-none transition">
+            <option value="">All Specialists</option>
+            {% for sp in specialists %}
+            <option value="{{ sp.pk }}" {% if specialist_id == sp.pk|stringformat:"s" %}selected{% endif %}>
+                {{ sp.name_en }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="status"
+                class="px-3 py-2.5 rounded-xl border border-slate-200 text-sm bg-white cursor-pointer
+                       focus:border-brand-500 focus:outline-none transition">
+            <option value="">All Status</option>
+            <option value="active"     {% if status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive"   {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+            <option value="verified"   {% if status == 'verified' %}selected{% endif %}>Verified</option>
+            <option value="unverified" {% if status == 'unverified' %}selected{% endif %}>Unverified</option>
+            <option value="featured"   {% if status == 'featured' %}selected{% endif %}>Featured</option>
+        </select>
+
+        <div class="flex gap-2">
+            <button type="submit"
+                    class="inline-flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800
+                           text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition">
+                Filter
+            </button>
+            {% if q or status or specialist_id %}
+            <a href="{% url 'dashboard:doctor_list' %}"
+               class="inline-flex items-center justify-center border border-slate-200 hover:bg-slate-50
+                      text-slate-700 text-sm font-medium px-4 py-2.5 rounded-xl transition">
+                Reset
+            </a>
+            {% endif %}
+        </div>
+    </form>
+</section>
+
+{% if page_obj.object_list %}
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for doctor in page_obj %}
+    <article class="bg-white rounded-2xl border border-slate-200 overflow-hidden
+                    hover:shadow-lg hover:border-brand-200 transition-all">
+        <div class="relative h-24 bg-gradient-to-br from-brand-50 to-brand-100">
+            {% if doctor.photo %}
+            <div class="w-full h-full grid place-items-center">
+                <img src="{{ doctor.photo.url }}" alt="{{ doctor.name_en }}"
+                     class="w-16 h-16 object-cover rounded-2xl border-2 border-white shadow-sm">
+            </div>
+            {% else %}
+            <div class="w-full h-full grid place-items-center">
+                <div class="w-16 h-16 rounded-2xl bg-white grid place-items-center text-brand-600 text-xl font-bold shadow-sm">
+                    {{ doctor.name_en|slice:":1" }}
+                </div>
+            </div>
+            {% endif %}
+            <div class="absolute top-2.5 right-2.5 flex flex-wrap gap-1 justify-end">
+                {% if doctor.is_verified %}
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-600 text-white shadow-sm">
+                    Verified
+                </span>
+                {% endif %}
+                {% if doctor.is_featured %}
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500 text-white shadow-sm">
+                    ⭐ Featured
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="p-4">
+            <h3 class="font-semibold text-slate-900 text-[15px] leading-tight line-clamp-1">{{ doctor.name_bn }}</h3>
+            <p class="text-xs text-slate-500 mt-0.5 line-clamp-1">{{ doctor.name_en }}</p>
+
+            {% if doctor.qualification_en %}
+            <p class="text-xs text-slate-600 mt-1.5 line-clamp-1">{{ doctor.qualification_en }}</p>
+            {% endif %}
+
+            {% if doctor.specialists.all %}
+            <div class="mt-2.5 flex flex-wrap gap-1">
+                {% for sp in doctor.specialists.all|slice:":3" %}
+                <span class="text-[10px] font-medium bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full">
+                    {{ sp.name_en }}
+                </span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="mt-3 flex items-center gap-3 flex-wrap text-[11px] text-slate-500">
+                <span class="inline-flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                        <path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/>
+                    </svg>
+                    {{ doctor.chamber_count }} chamber{{ doctor.chamber_count|pluralize }}
+                </span>
+                {% if not doctor.is_active %}
+                <span class="inline-flex items-center gap-1 text-red-600 font-medium">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                    Inactive
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-3 border-t border-slate-100 divide-x divide-slate-100 text-xs font-medium">
+            <a href="{% url 'dashboard:doctor_edit' doctor.pk %}"
+               class="py-2.5 text-center text-slate-700 hover:bg-slate-50 transition">
+                Edit
+            </a>
+            <button type="button"
+                    data-delete-url="{% url 'dashboard:doctor_delete' doctor.pk %}"
+                    data-delete-name="{{ doctor.name_bn }}"
+                    class="delete-btn py-2.5 text-center text-red-600 hover:bg-red-50 transition">
+                Delete
+            </button>
+            <a href="/doctors/{{ doctor.slug }}/" target="_blank"
+               class="py-2.5 text-center text-slate-700 hover:bg-slate-50 transition">
+                View
+            </a>
+        </div>
+    </article>
+    {% endfor %}
+</section>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-6 flex items-center justify-center gap-1.5">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}"
+       class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M15 18l-6-6 6-6"/>
+        </svg>
+    </a>
+    {% endif %}
+    <span class="text-sm text-slate-600 px-3">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}"
+       class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M9 18l6-6-6-6"/>
+        </svg>
+    </a>
+    {% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+
+<section class="bg-white rounded-2xl border border-slate-200 p-10 text-center">
+    <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 grid place-items-center mx-auto mb-4">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round">
+            <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>
+        </svg>
+    </div>
+    <h3 class="font-semibold text-slate-900 text-base">
+        {% if q or status or specialist_id %}No doctors found{% else %}No doctors added yet{% endif %}
+    </h3>
+    <p class="text-sm text-slate-500 mt-1.5 max-w-sm mx-auto">
+        {% if q or status or specialist_id %}
+            Try changing the filters.
+        {% else %}
+            Click "New Doctor" to add your first one.
+        {% endif %}
+    </p>
+    <div class="mt-5 flex items-center justify-center gap-2">
+        {% if q or status or specialist_id %}
+        <a href="{% url 'dashboard:doctor_list' %}"
+           class="inline-flex items-center gap-1.5 border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium px-4 py-2.5 rounded-xl transition">
+            Reset
+        </a>
+        {% endif %}
+        <a href="{% url 'dashboard:doctor_create' %}"
+           class="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14"/>
+            </svg>
+            New Doctor
+        </a>
+    </div>
+</section>
+
+{% endif %}
+
+<div id="deleteModal" class="fixed inset-0 z-[60] hidden">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" data-close-modal></div>
+    <div class="relative min-h-full flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl">
+            <h3 class="text-base font-bold text-slate-900 text-center">Confirm Delete</h3>
+            <p class="text-sm text-slate-500 text-center mt-1.5">
+                Delete <strong id="deleteTargetName" class="text-slate-900"></strong>?
+                All chambers will also be removed.
+            </p>
+            <form id="deleteForm" method="post" class="mt-5 flex gap-2">
+                {% csrf_token %}
+                <button type="button" data-close-modal
+                        class="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium py-2.5 rounded-xl transition">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2.5 rounded-xl transition">
+                    Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="toastContainer" class="fixed top-20 right-4 z-[70] space-y-2 max-w-sm"></div>
+
+<script>
+(function() {
+    'use strict';
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteForm = document.getElementById('deleteForm');
+    const deleteNameEl = document.getElementById('deleteTargetName');
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            deleteForm.action = btn.dataset.deleteUrl;
+            deleteNameEl.textContent = btn.dataset.deleteName;
+            deleteModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    function closeModal() {
+        deleteModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+    deleteModal.querySelectorAll('[data-close-modal]').forEach(el => {
+        el.addEventListener('click', closeModal);
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
+})();
+</script>
+
+{% endblock %}

@@ -81,30 +81,30 @@
         </div>
 
         <!-- Doctors (custom page — route will be wired later) -->
-        <a href="#"
-           class="nav-link nav-link-default opacity-70 cursor-not-allowed"
-           title="Coming soon"
-           aria-disabled="true"
-           onclick="return false;">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
-                <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>
-            </svg>
-            <span>Doctors</span>
-            <span class="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 font-semibold">soon</span>
-        </a>
+        <a href="{% url 'dashboard:doctor_list' %}"
+   class="nav-link {% if current == 'doctor_list' or current == 'doctor_create' or current == 'doctor_edit' %}nav-link-active{% else %}nav-link-default{% endif %}"
+   {% if current == 'doctor_list' %}aria-current="page"{% endif %}>
+    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+        <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>
+    </svg>
+    <span>Doctors</span>
+    <svg class="w-3 h-3 ml-auto text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+        <path d="M9 6l6 6-6 6"/>
+    </svg>
+</a>
 
         <!-- Specialists (custom page — route later) -->
-        <a href="#"
-           class="nav-link nav-link-default opacity-70 cursor-not-allowed"
-           title="Coming soon"
-           aria-disabled="true"
-           onclick="return false;">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
-                <path d="M9 12l2 2 4-4M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"/>
-            </svg>
-            <span>Specialists</span>
-            <span class="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 font-semibold">soon</span>
-        </a>
+       <a href="{% url 'dashboard:specialist_list' %}"
+   class="nav-link {% if current == 'specialist_list' or current == 'specialist_create' or current == 'specialist_edit' %}nav-link-active{% else %}nav-link-default{% endif %}"
+   {% if current == 'specialist_list' %}aria-current="page"{% endif %}>
+    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+        <path d="M9 12l2 2 4-4M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"/>
+    </svg>
+    <span>Specialists</span>
+    <svg class="w-3 h-3 ml-auto text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+        <path d="M9 6l6 6-6 6"/>
+    </svg>
+</a>
 
         <!-- Diagnostic Centers — LIVE (our custom page) -->
         <a href="{% url 'dashboard:center_list' %}"

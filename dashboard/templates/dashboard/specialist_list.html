@@ -1,0 +1,363 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Specialists — Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+    <div>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">All Specialists</h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Total {{ total }} — {{ active_count }} active
+        </p>
+    </div>
+    <a href="{% url 'dashboard:specialist_create' %}"
+       class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700
+              text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition shadow-sm shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+        </svg>
+        New Specialist
+    </a>
+</section>
+
+<!-- KPI -->
+<section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <div class="text-xs text-slate-500">Total</div>
+        <div class="text-xl font-bold text-slate-900 tabular-nums mt-1">{{ total }}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <div class="text-xs text-slate-500">Active</div>
+        <div class="text-xl font-bold text-emerald-600 tabular-nums mt-1">{{ active_count }}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <div class="text-xs text-slate-500">Featured</div>
+        <div class="text-xl font-bold text-amber-600 tabular-nums mt-1">{{ featured_count }}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <div class="text-xs text-slate-500">With Doctors</div>
+        <div class="text-xl font-bold text-brand-600 tabular-nums mt-1">{{ with_doctors }}</div>
+    </div>
+</section>
+
+<!-- Search + Filter -->
+<section class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 mb-5">
+    <form method="get" class="flex flex-col lg:flex-row gap-3">
+        <div class="flex-1 relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
+                 fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+            </svg>
+            <input type="search" name="q" value="{{ q }}"
+                   placeholder="Search specialists by name..."
+                   class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-sm
+                          focus:border-brand-500 focus:outline-none transition">
+        </div>
+
+        <select name="status"
+                class="px-3 py-2.5 rounded-xl border border-slate-200 text-sm bg-white cursor-pointer
+                       focus:border-brand-500 focus:outline-none transition">
+            <option value="">All Status</option>
+            <option value="active"   {% if status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+            <option value="featured" {% if status == 'featured' %}selected{% endif %}>Featured</option>
+        </select>
+
+        <select name="sort"
+                class="px-3 py-2.5 rounded-xl border border-slate-200 text-sm bg-white cursor-pointer
+                       focus:border-brand-500 focus:outline-none transition">
+            <option value="order"  {% if sort == 'order' %}selected{% endif %}>Display Order</option>
+            <option value="name"   {% if sort == 'name' %}selected{% endif %}>Name (A-Z)</option>
+            <option value="-name"  {% if sort == '-name' %}selected{% endif %}>Name (Z-A)</option>
+            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest first</option>
+            <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest first</option>
+        </select>
+
+        <div class="flex gap-2">
+            <button type="submit"
+                    class="inline-flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800
+                           text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition">
+                Filter
+            </button>
+            {% if q or status or sort != 'order' %}
+            <a href="{% url 'dashboard:specialist_list' %}"
+               class="inline-flex items-center justify-center border border-slate-200 hover:bg-slate-50
+                      text-slate-700 text-sm font-medium px-4 py-2.5 rounded-xl transition">
+                Reset
+            </a>
+            {% endif %}
+        </div>
+    </form>
+</section>
+
+<!-- Results -->
+{% if page_obj.object_list %}
+
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+
+    {% for sp in page_obj %}
+    <article class="bg-white rounded-2xl border border-slate-200 p-4
+                    hover:shadow-lg hover:shadow-slate-900/5 hover:border-brand-200 transition-all">
+
+        <!-- Icon + badges -->
+        <div class="flex items-start justify-between gap-2 mb-3">
+            <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-700 grid place-items-center text-xl">
+                {% if sp.icon %}
+                    {% if '<' in sp.icon %}
+                        {# raw SVG #}
+                        {{ sp.icon|safe }}
+                    {% else %}
+                        {# emoji or text #}
+                        {{ sp.icon }}
+                    {% endif %}
+                {% else %}
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                        <path d="M9 12l2 2 4-4M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"/>
+                    </svg>
+                {% endif %}
+            </div>
+            <div class="flex flex-wrap gap-1 justify-end">
+                {% if sp.is_featured %}
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500 text-white">★</span>
+                {% endif %}
+                {% if not sp.is_active %}
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700">Inactive</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Names -->
+        <h3 class="font-semibold text-slate-900 text-[15px] leading-tight line-clamp-1">{{ sp.name_en }}</h3>
+        <p class="text-xs text-slate-500 mt-0.5 line-clamp-1">{{ sp.name_bn }}</p>
+
+        <!-- Description -->
+        {% if sp.description_en %}
+        <p class="text-xs text-slate-600 mt-2 line-clamp-2 leading-relaxed">{{ sp.description_en }}</p>
+        {% endif %}
+
+        <!-- Meta -->
+        <div class="mt-3 flex items-center gap-3 text-[11px] text-slate-500">
+            <span class="inline-flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>
+                </svg>
+                {{ sp.doctor_count }} doctor{{ sp.doctor_count|pluralize }}
+            </span>
+            <span class="text-slate-400">·</span>
+            <span>Order {{ sp.display_order }}</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="grid grid-cols-3 border-t border-slate-100 divide-x divide-slate-100 text-xs font-medium mt-4 -mx-4 -mb-4">
+            <a href="{% url 'dashboard:specialist_edit' sp.pk %}"
+               class="py-2.5 text-center text-slate-700 hover:bg-slate-50 transition">
+                Edit
+            </a>
+            <button type="button"
+                    data-delete-url="{% url 'dashboard:specialist_delete' sp.pk %}"
+                    data-delete-name="{{ sp.name_bn }}"
+                    data-doctor-count="{{ sp.doctor_count }}"
+                    class="delete-btn py-2.5 text-center text-red-600 hover:bg-red-50 transition">
+                Delete
+            </button>
+            <a href="/specialists/{{ sp.slug }}/" target="_blank"
+               class="py-2.5 text-center text-slate-700 hover:bg-slate-50 transition">
+                View
+            </a>
+        </div>
+    </article>
+    {% endfor %}
+
+</section>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav class="mt-6 flex items-center justify-center gap-1.5">
+    {% if page_obj.has_previous %}
+    <a href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort={{ sort }}&page={{ page_obj.previous_page_number }}"
+       class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M15 18l-6-6 6-6"/>
+        </svg>
+    </a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}
+        <span class="w-9 h-9 grid place-items-center rounded-lg bg-brand-600 text-white text-sm font-semibold">{{ num }}</span>
+        {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+        <a href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort={{ sort }}&page={{ num }}"
+           class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 hover:bg-slate-50 text-sm font-medium text-slate-700 transition">
+            {{ num }}
+        </a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort={{ sort }}&page={{ page_obj.next_page_number }}"
+       class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M9 18l6-6-6-6"/>
+        </svg>
+    </a>
+    {% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+
+<!-- Empty state -->
+<section class="bg-white rounded-2xl border border-slate-200 p-10 text-center">
+    <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 grid place-items-center mx-auto mb-4">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M9 12l2 2 4-4M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"/>
+        </svg>
+    </div>
+    <h3 class="font-semibold text-slate-900 text-base">
+        {% if q or status %}No specialists found{% else %}No specialists added yet{% endif %}
+    </h3>
+    <p class="text-sm text-slate-500 mt-1.5 max-w-sm mx-auto">
+        {% if q or status %}
+            Try changing the filters.
+        {% else %}
+            Add the first specialty to get started.
+        {% endif %}
+    </p>
+    <div class="mt-5 flex items-center justify-center gap-2">
+        {% if q or status %}
+        <a href="{% url 'dashboard:specialist_list' %}"
+           class="inline-flex items-center gap-1.5 border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium px-4 py-2.5 rounded-xl transition">
+            Reset
+        </a>
+        {% endif %}
+        <a href="{% url 'dashboard:specialist_create' %}"
+           class="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14"/>
+            </svg>
+            New Specialist
+        </a>
+    </div>
+</section>
+
+{% endif %}
+
+<!-- Delete Modal -->
+<div id="deleteModal" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" data-close-modal></div>
+    <div class="relative min-h-full flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl">
+            <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-600 grid place-items-center mx-auto mb-4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M12 8v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+                </svg>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 text-center">Confirm Delete</h3>
+            <p class="text-sm text-slate-500 text-center mt-1.5">
+                Are you sure you want to delete <strong id="deleteTargetName" class="text-slate-900"></strong>?
+            </p>
+            <p id="deleteWarning" class="hidden text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2.5 mt-3 text-center"></p>
+            <form id="deleteForm" method="post" class="mt-5 flex gap-2">
+                {% csrf_token %}
+                <button type="button" data-close-modal
+                        class="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium py-2.5 rounded-xl transition">
+                    Cancel
+                </button>
+                <button type="submit" id="deleteConfirmBtn"
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2.5 rounded-xl transition">
+                    Yes, Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Toasts -->
+<div id="toastContainer" class="fixed top-20 right-4 z-[70] space-y-2 max-w-sm"></div>
+
+{% if messages %}
+<script>
+    window.__INITIAL_MESSAGES__ = [
+        {% for m in messages %}
+        { tags: "{{ m.tags|escapejs }}", text: "{{ m|escapejs }}" }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+</script>
+{% endif %}
+
+<script>
+(function () {
+    'use strict';
+
+    // Toast
+    var toastContainer = document.getElementById('toastContainer');
+    function showToast(text, tags) {
+        tags = tags || 'success';
+        var colorMap = {
+            success: { border: 'border-l-emerald-500', icon: 'text-emerald-600' },
+            error:   { border: 'border-l-red-500',     icon: 'text-red-600' },
+            warning: { border: 'border-l-amber-500',   icon: 'text-amber-600' },
+            info:    { border: 'border-l-brand-500',   icon: 'text-brand-600' },
+        };
+        var c = colorMap[tags] || colorMap.info;
+        var el = document.createElement('div');
+        el.className = 'toast fade-up bg-white rounded-xl border border-slate-200 shadow-lg p-3.5 flex items-start gap-2.5 ' + c.border;
+        el.innerHTML = '<svg class="w-4 h-4 shrink-0 mt-0.5 ' + c.icon + '" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><div class="text-xs sm:text-sm text-slate-700 leading-relaxed flex-1"></div>';
+        el.querySelector('div').textContent = text;
+        toastContainer.appendChild(el);
+        setTimeout(function () {
+            el.style.transition = 'opacity .3s, transform .3s';
+            el.style.opacity = '0';
+            el.style.transform = 'translateX(20px)';
+            setTimeout(function () { el.remove(); }, 300);
+        }, 4000);
+    }
+    if (window.__INITIAL_MESSAGES__) {
+        window.__INITIAL_MESSAGES__.forEach(function (m) { showToast(m.text, m.tags); });
+    }
+
+    // Delete modal
+    var deleteModal = document.getElementById('deleteModal');
+    var deleteForm = document.getElementById('deleteForm');
+    var deleteNameEl = document.getElementById('deleteTargetName');
+    var deleteWarning = document.getElementById('deleteWarning');
+    var deleteConfirmBtn = document.getElementById('deleteConfirmBtn');
+
+    document.querySelectorAll('.delete-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var count = parseInt(btn.dataset.doctorCount || '0', 10);
+            deleteForm.action = btn.dataset.deleteUrl;
+            deleteNameEl.textContent = btn.dataset.deleteName;
+
+            if (count > 0) {
+                deleteWarning.textContent = 'This specialist is used by ' + count + ' doctor(s). Delete is not allowed.';
+                deleteWarning.classList.remove('hidden');
+                deleteConfirmBtn.disabled = true;
+                deleteConfirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                deleteWarning.classList.add('hidden');
+                deleteConfirmBtn.disabled = false;
+                deleteConfirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            deleteModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    function closeModal() {
+        deleteModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+    deleteModal.querySelectorAll('[data-close-modal]').forEach(function (el) {
+        el.addEventListener('click', closeModal);
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !deleteModal.classList.contains('hidden')) closeModal();
+    });
+})();
+</script>
+
+{% endblock %}

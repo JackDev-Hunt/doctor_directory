@@ -1,6 +1,8 @@
 from django.urls import path
 from dashboard.views import dashboard as dash_views
 from dashboard.views import diagnostic_center_views as center_views
+from dashboard.views import doctor_views as doctor_v
+from dashboard.views import specialist_views as spec_v
 
 app_name = "dashboard"
 
@@ -15,4 +17,16 @@ urlpatterns = [
     path("centers/<int:pk>/edit/",                center_views.center_edit,        name="center_edit"),
     path("centers/<int:pk>/delete/",              center_views.center_delete,      name="center_delete"),
     path("centers/<int:pk>/toggle/<str:field>/",  center_views.center_toggle,      name="center_toggle"),
+
+    # ---------- Doctors ----------
+    path("doctors/",                              doctor_v.doctor_list,            name="doctor_list"),
+    path("doctors/new/",                          doctor_v.doctor_create,          name="doctor_create"),
+    path("doctors/<int:pk>/edit/",                doctor_v.doctor_edit,            name="doctor_edit"),
+    path("doctors/<int:pk>/delete/",              doctor_v.doctor_delete,          name="doctor_delete"),
+
+    # ---------- Specialists ----------
+    path("specialists/",                          spec_v.specialist_list,          name="specialist_list"),
+    path("specialists/new/",                      spec_v.specialist_create,        name="specialist_create"),
+    path("specialists/<int:pk>/edit/",            spec_v.specialist_edit,          name="specialist_edit"),
+    path("specialists/<int:pk>/delete/",          spec_v.specialist_delete,        name="specialist_delete"),
 ]

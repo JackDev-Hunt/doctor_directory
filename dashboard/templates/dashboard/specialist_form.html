@@ -1,0 +1,158 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}{% if mode == 'edit' %}Edit Specialist{% else %}New Specialist{% endif %} — Dashboard{% endblock %}
+
+{% block content %}
+
+<form method="post" class="space-y-5 max-w-4xl">
+
+    {% csrf_token %}
+
+    <!-- ============================================================ -->
+    <!-- BASIC INFO                                                    -->
+    <!-- ============================================================ -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+        <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-700 grid place-items-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M9 12l2 2 4-4M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"/>
+                </svg>
+            </div>
+            <h2 class="text-base font-bold text-slate-900">Specialist Information</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <!-- Names -->
+            <div>
+                <label for="name_bn" class="block text-sm font-medium text-slate-700 mb-1.5">
+                    Name (Bangla) <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="name_bn" id="name_bn" required
+                       value="{{ form_data.name_bn|default:'' }}"
+                       placeholder="যেমন: হৃদরোগ বিশেষজ্ঞ"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <div>
+                <label for="name_en" class="block text-sm font-medium text-slate-700 mb-1.5">
+                    Name (English) <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="name_en" id="name_en" required
+                       value="{{ form_data.name_en|default:'' }}"
+                       placeholder="e.g. Cardiology"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <!-- Slug -->
+            <div class="md:col-span-2">
+                <label for="slug" class="block text-sm font-medium text-slate-700 mb-1.5">
+                    Slug <span class="text-xs text-slate-400 font-normal">(leave empty to auto-generate)</span>
+                </label>
+                <input type="text" name="slug" id="slug"
+                       value="{{ form_data.slug|default:'' }}"
+                       placeholder="cardiology"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-mono
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+
+            <!-- Icon -->
+            <div class="md:col-span-2">
+                <label for="icon" class="block text-sm font-medium text-slate-700 mb-1.5">
+                    Icon <span class="text-xs text-slate-400 font-normal">(emoji or SVG string)</span>
+                </label>
+                <input type="text" name="icon" id="icon"
+                       value="{{ form_data.icon|default:'' }}"
+                       placeholder="❤️ or 🫀 or 🧠"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+                <p class="text-xs text-slate-500 mt-1.5">
+                    Suggestions: ❤️ 🫀 🧠 👶 🦷 👁️ 🩺 💊 🦴 🧴 🧬 🩹
+                </p>
+            </div>
+
+            <!-- Descriptions -->
+            <div class="md:col-span-2">
+                <label for="description_bn" class="block text-sm font-medium text-slate-700 mb-1.5">Description (Bangla)</label>
+                <textarea name="description_bn" id="description_bn" rows="2"
+                          placeholder="সংক্ষিপ্ত বিবরণ..."
+                          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm resize-y
+                                 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">{{ form_data.description_bn|default:'' }}</textarea>
+            </div>
+
+            <div class="md:col-span-2">
+                <label for="description_en" class="block text-sm font-medium text-slate-700 mb-1.5">Description (English)</label>
+                <textarea name="description_en" id="description_en" rows="2"
+                          placeholder="Short description..."
+                          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm resize-y
+                                 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">{{ form_data.description_en|default:'' }}</textarea>
+            </div>
+
+            <!-- Display Order -->
+            <div>
+                <label for="display_order" class="block text-sm font-medium text-slate-700 mb-1.5">
+                    Display Order <span class="text-xs text-slate-400 font-normal">(lower = first)</span>
+                </label>
+                <input type="number" name="display_order" id="display_order" min="0" max="999"
+                       value="{{ form_data.display_order|default:0 }}"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                              focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition">
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- STATUS                                                        -->
+    <!-- ============================================================ -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+        <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 grid place-items-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/>
+                </svg>
+            </div>
+            <h2 class="text-base font-bold text-slate-900">Status</h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" name="is_active"
+                       {% if form_data.is_active %}checked{% endif %}
+                       class="mt-0.5 w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                <div>
+                    <div class="text-sm font-medium text-slate-900">Active</div>
+                    <div class="text-xs text-slate-500 mt-0.5">Show on public website</div>
+                </div>
+            </label>
+
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" name="is_featured"
+                       {% if form_data.is_featured %}checked{% endif %}
+                       class="mt-0.5 w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                <div>
+                    <div class="text-sm font-medium text-slate-900">Featured</div>
+                    <div class="text-xs text-slate-500 mt-0.5">Highlight on homepage</div>
+                </div>
+            </label>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- ACTIONS                                                       -->
+    <!-- ============================================================ -->
+    <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+        <a href="{% url 'dashboard:specialist_list' %}"
+           class="text-center border border-slate-200 hover:bg-white text-slate-700 text-sm font-medium px-5 py-2.5 rounded-xl transition">
+            Cancel
+        </a>
+        <button type="submit"
+                class="bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition shadow-sm">
+            {% if mode == 'edit' %}Update Specialist{% else %}Save Specialist{% endif %}
+        </button>
+    </div>
+
+</form>
+
+{% endblock %}

@@ -1,0 +1,855 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}{% if mode == 'edit' %}Edit Doctor{% else %}New Doctor{% endif %} — Dashboard{% endblock %}
+
+{% block content %}
+
+<form method="post" enctype="multipart/form-data" id="doctorForm" class="space-y-5">
+    {% csrf_token %}
+
+    <!-- Hidden inputs for selected specialists -->
+    <div id="specialistsHidden"></div>
+
+    <!-- Hidden container for chamber data -->
+    <div id="chambersHidden"></div>
+
+    <!-- ============================================================ -->
+    <!-- 1. BASIC INFORMATION                                          -->
+    <!-- ============================================================ -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+        <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-700 grid place-items-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>
+                </svg>
+            </div>
+            <h2 class="text-base font-bold text-slate-900">Basic Information</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <!-- Photo -->
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Photo</label>
+                <div class="flex items-start gap-4">
+                    {% if doctor.photo %}
+                    <div class="w-20 h-20 rounded-2xl border border-slate-200 overflow-hidden bg-slate-50 shrink-0">
+                        <img src="{{ doctor.photo.url }}" alt="Photo" class="w-full h-full object-cover">
+                    </div>
+                    {% else %}
+                    <div class="w-20 h-20 rounded-2xl border border-dashed border-slate-300 bg-slate-50 grid place-items-center shrink-0 text-slate-400">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round">
+                            <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                    <div class="flex-1 min-w-0">
+                        <input type="file" name="photo" accept="image/*"
+                               class="w-full text-xs file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0
+                                      file:bg-brand-50 file:text-brand-700 file:text-xs file:font-medium
+                                      hover:file:bg-brand-100 file:cursor-pointer text-slate-600 cursor-pointer">
+                        <p class="text-xs text-slate-500 mt-1">JPG or PNG, 400x400 recommended.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Names -->
+            <div>
+                <label for="name_bn" class="block text-sm font-medium text-slate-700 mb-1.5">
+                    Name (Bangla) <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="name_bn" id="name_bn" required
+                       value="{{ form_data.name_bn|default:'' }}"
+                       placeholder="ডা. মোহাম্মদ রহমান"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">
+            </div>
+            <div>
+                <label for="name_en" class="block text-sm font-medium text-slate-700 mb-1.5">
+                    Name (English) <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="name_en" id="name_en" required
+                       value="{{ form_data.name_en|default:'' }}"
+                       placeholder="Dr. Mohammad Rahman"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">
+            </div>
+
+            <!-- Slug -->
+            <div class="md:col-span-2">
+                <label for="slug" class="block text-sm font-medium text-slate-700 mb-1.5">
+                    Slug <span class="text-xs text-slate-400 font-normal">(optional)</span>
+                </label>
+                <input type="text" name="slug" id="slug"
+                       value="{{ form_data.slug|default:'' }}"
+                       placeholder="dr-mohammad-rahman"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-mono focus:border-brand-500 focus:outline-none">
+            </div>
+
+            <!-- Qualification -->
+            <div>
+                <label for="qualification_bn" class="block text-sm font-medium text-slate-700 mb-1.5">Qualification (Bangla)</label>
+                <input type="text" name="qualification_bn" id="qualification_bn"
+                       value="{{ form_data.qualification_bn|default:'' }}"
+                       placeholder="এমবিবিএস, এফসিপিএস"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">
+            </div>
+            <div>
+                <label for="qualification_en" class="block text-sm font-medium text-slate-700 mb-1.5">Qualification (English)</label>
+                <input type="text" name="qualification_en" id="qualification_en"
+                       value="{{ form_data.qualification_en|default:'' }}"
+                       placeholder="MBBS, FCPS"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">
+            </div>
+
+            <!-- Designation -->
+            <div>
+                <label for="designation_bn" class="block text-sm font-medium text-slate-700 mb-1.5">Designation (Bangla)</label>
+                <input type="text" name="designation_bn" id="designation_bn"
+                       value="{{ form_data.designation_bn|default:'' }}"
+                       placeholder="সিনিয়র কনসালটেন্ট"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">
+            </div>
+            <div>
+                <label for="designation_en" class="block text-sm font-medium text-slate-700 mb-1.5">Designation (English)</label>
+                <input type="text" name="designation_en" id="designation_en"
+                       value="{{ form_data.designation_en|default:'' }}"
+                       placeholder="Senior Consultant"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">
+            </div>
+
+            <!-- Experience & BMDC -->
+            <div>
+                <label for="experience_years" class="block text-sm font-medium text-slate-700 mb-1.5">Years of Experience</label>
+                <input type="number" name="experience_years" id="experience_years" min="0" max="80"
+                       value="{{ form_data.experience_years|default:0 }}"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">
+            </div>
+            <div>
+                <label for="bmdc_reg_no" class="block text-sm font-medium text-slate-700 mb-1.5">BMDC Reg. No.</label>
+                <input type="text" name="bmdc_reg_no" id="bmdc_reg_no"
+                       value="{{ form_data.bmdc_reg_no|default:'' }}"
+                       placeholder="A-12345"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">
+            </div>
+
+            <!-- Contact -->
+            <div>
+                <label for="phone" class="block text-sm font-medium text-slate-700 mb-1.5">Phone</label>
+                <input type="tel" name="phone" id="phone"
+                       value="{{ form_data.phone|default:'' }}"
+                       placeholder="017xxxxxxxx"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">
+            </div>
+            <div>
+                <label for="phone_alt" class="block text-sm font-medium text-slate-700 mb-1.5">Alternate Phone</label>
+                <input type="tel" name="phone_alt" id="phone_alt"
+                       value="{{ form_data.phone_alt|default:'' }}"
+                       placeholder="017xxxxxxxx"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">
+            </div>
+
+            <div class="md:col-span-2">
+                <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+                <input type="email" name="email" id="email"
+                       value="{{ form_data.email|default:'' }}"
+                       placeholder="doctor@example.com"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">
+            </div>
+
+            <!-- Bio -->
+            <div class="md:col-span-2">
+                <label for="bio_bn" class="block text-sm font-medium text-slate-700 mb-1.5">Bio (Bangla)</label>
+                <textarea name="bio_bn" id="bio_bn" rows="3"
+                          placeholder="সংক্ষিপ্ত পরিচিতি..."
+                          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">{{ form_data.bio_bn|default:'' }}</textarea>
+            </div>
+            <div class="md:col-span-2">
+                <label for="bio_en" class="block text-sm font-medium text-slate-700 mb-1.5">Bio (English)</label>
+                <textarea name="bio_en" id="bio_en" rows="3"
+                          placeholder="Short biography..."
+                          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">{{ form_data.bio_en|default:'' }}</textarea>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 2. SPECIALISTS (Modal-based)                                 -->
+    <!-- ============================================================ -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+        <div class="flex items-center justify-between gap-3 mb-4">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 grid place-items-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                        <path d="M9 12l2 2 4-4M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-base font-bold text-slate-900">Specialists</h2>
+                    <p class="text-xs text-slate-500 -mt-0.5">Click "Select" to add specialties</p>
+                </div>
+            </div>
+            <button type="button" id="openSpecialistModalBtn"
+                    class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700
+                           text-white text-xs font-semibold px-3 py-2 rounded-lg transition shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Select
+            </button>
+        </div>
+
+        <!-- Selected chips container -->
+        <div id="selectedSpecialists" class="flex flex-wrap gap-2 min-h-[40px]"></div>
+        <p id="specialistsEmpty" class="text-sm text-slate-500 py-3 text-center border border-dashed border-slate-300 rounded-xl">
+            No specialists selected yet.
+        </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 3. CHAMBERS (Modal-based)                                    -->
+    <!-- ============================================================ -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+        <div class="flex items-center justify-between gap-3 mb-4">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-700 grid place-items-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-base font-bold text-slate-900">Chambers & Schedules</h2>
+                    <p class="text-xs text-slate-500 -mt-0.5">Add a schedule for each center/day</p>
+                </div>
+            </div>
+            <button type="button" id="openChamberModalBtn"
+                    class="inline-flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700
+                           text-white text-xs font-semibold px-3 py-2 rounded-lg transition shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Add Chamber
+            </button>
+        </div>
+
+        <!-- Chambers list -->
+        <div id="chambersList" class="space-y-2"></div>
+        <p id="chambersEmpty" class="text-sm text-slate-500 py-3 text-center border border-dashed border-slate-300 rounded-xl">
+            No chambers added yet.
+        </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 4. STATUS                                                     -->
+    <!-- ============================================================ -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+        <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 grid place-items-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/>
+                </svg>
+            </div>
+            <h2 class="text-base font-bold text-slate-900">Status</h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" name="is_active" {% if form_data.is_active %}checked{% endif %}
+                       class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                <span class="text-sm text-slate-700">Active</span>
+            </label>
+            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" name="is_verified" {% if form_data.is_verified %}checked{% endif %}
+                       class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                <span class="text-sm text-slate-700">Verified</span>
+            </label>
+            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" name="is_featured" {% if form_data.is_featured %}checked{% endif %}
+                       class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                <span class="text-sm text-slate-700">Featured</span>
+            </label>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- ACTIONS                                                       -->
+    <!-- ============================================================ -->
+    <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2">
+        <a href="{% url 'dashboard:doctor_list' %}"
+           class="text-center border border-slate-200 hover:bg-white text-slate-700 text-sm font-medium px-5 py-2.5 rounded-xl transition">
+            Cancel
+        </a>
+        <button type="submit"
+                class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition">
+            {% if mode == 'edit' %}Update Doctor{% else %}Save Doctor{% endif %}
+        </button>
+    </div>
+</form>
+
+
+<!-- ============================================================ -->
+<!-- MODAL 1: SPECIALIST SELECTION                                 -->
+<!-- ============================================================ -->
+<div id="specialistModal" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" data-close-specialist-modal></div>
+
+    <div class="relative min-h-full flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl my-4">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 grid place-items-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <path d="M9 12l2 2 4-4M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Select Specialists</h3>
+                        <p class="text-xs text-slate-500">Choose one or more</p>
+                    </div>
+                </div>
+                <button type="button" data-close-specialist-modal
+                        class="w-8 h-8 grid place-items-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+                        <path d="M6 6l12 12M18 6 6 18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Body: Search + list -->
+            <div class="px-5 py-4 max-h-[60vh] overflow-y-auto">
+
+                <!-- Search -->
+                <div class="relative mb-3">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
+                         fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+                    </svg>
+                    <input type="search" id="specialistSearchInput"
+                           placeholder="Search specialists..."
+                           class="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-brand-500 focus:outline-none">
+                </div>
+
+                {% if specialists %}
+                <div id="specialistList" class="space-y-1.5">
+                    {% for sp in specialists %}
+                    <label class="specialist-option flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition"
+                           data-name-en="{{ sp.name_en|lower }}"
+                           data-name-bn="{{ sp.name_bn|lower }}">
+                        <input type="checkbox" class="specialist-checkbox w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                               value="{{ sp.pk }}"
+                               data-id="{{ sp.pk }}"
+                               data-name-bn="{{ sp.name_bn }}"
+                               data-name-en="{{ sp.name_en }}"
+                               {% if sp.pk|stringformat:"s" in selected_specialists %}checked{% endif %}>
+                        <div class="min-w-0">
+                            <div class="text-sm font-medium text-slate-900 truncate">{{ sp.name_en }}</div>
+                            <div class="text-xs text-slate-500 truncate">{{ sp.name_bn }}</div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+                <p id="specialistNoResults" class="hidden text-sm text-slate-500 text-center py-6">No matches found.</p>
+                {% else %}
+                <div class="text-sm text-slate-500 py-6 text-center border border-dashed border-slate-300 rounded-xl">
+                    No specialists available. <a href="/admin/doctors/specialist/add/" target="_blank" class="text-brand-700 font-medium hover:underline">Add one</a>.
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Footer -->
+            <div class="px-5 py-4 border-t border-slate-200 flex items-center justify-between gap-3 bg-slate-50 rounded-b-2xl">
+                <span id="specialistSelectedCount" class="text-xs text-slate-600">
+                    0 selected
+                </span>
+                <div class="flex gap-2">
+                    <button type="button" data-close-specialist-modal
+                            class="text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-2 rounded-lg hover:bg-white transition">
+                        Cancel
+                    </button>
+                    <button type="button" id="applySpecialistsBtn"
+                            class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition">
+                        Done
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- MODAL 2: CHAMBER ADD/EDIT                                     -->
+<!-- ============================================================ -->
+<div id="chamberModal" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" data-close-chamber-modal></div>
+
+    <div class="relative min-h-full flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl my-4">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-700 grid place-items-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round">
+                            <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 id="chamberModalTitle" class="font-bold text-slate-900 text-base">Add Chamber</h3>
+                        <p class="text-xs text-slate-500">Schedule at a diagnostic center</p>
+                    </div>
+                </div>
+                <button type="button" data-close-chamber-modal
+                        class="w-8 h-8 grid place-items-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round">
+                        <path d="M6 6l12 12M18 6 6 18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Body: Chamber form -->
+            <div class="px-5 py-4 space-y-3.5">
+
+                <div>
+                    <label for="chamber_center" class="block text-sm font-medium text-slate-700 mb-1.5">
+                        Diagnostic Center <span class="text-red-500">*</span>
+                    </label>
+                    <select id="chamber_center" required
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:border-purple-500 focus:outline-none">
+                        <option value="">— Select center —</option>
+                        {% for c in centers %}
+                        <option value="{{ c.pk }}" data-name="{{ c.name_en }}">{{ c.name_en }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="chamber_day" class="block text-sm font-medium text-slate-700 mb-1.5">
+                        Day <span class="text-red-500">*</span>
+                    </label>
+                    <select id="chamber_day" required
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:border-purple-500 focus:outline-none">
+                        <option value="">— Select day —</option>
+                        {% for value, label in weekdays %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="chamber_start" class="block text-sm font-medium text-slate-700 mb-1.5">
+                            Start Time <span class="text-red-500">*</span>
+                        </label>
+                        <input type="time" id="chamber_start" required
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-purple-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label for="chamber_end" class="block text-sm font-medium text-slate-700 mb-1.5">
+                            End Time <span class="text-red-500">*</span>
+                        </label>
+                        <input type="time" id="chamber_end" required
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-purple-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="chamber_room" class="block text-sm font-medium text-slate-700 mb-1.5">Room No.</label>
+                        <input type="text" id="chamber_room" placeholder="e.g. 302"
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-purple-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label for="chamber_phone" class="block text-sm font-medium text-slate-700 mb-1.5">Appointment Phone</label>
+                        <input type="tel" id="chamber_phone" placeholder="017xxxxxxxx"
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-purple-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <p id="chamberModalError" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-2.5"></p>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-5 py-4 border-t border-slate-200 flex justify-end gap-2 bg-slate-50 rounded-b-2xl">
+                <button type="button" data-close-chamber-modal
+                        class="text-sm font-medium text-slate-600 hover:text-slate-900 px-4 py-2 rounded-lg hover:bg-white transition">
+                    Cancel
+                </button>
+                <button type="button" id="applyChamberBtn"
+                        class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition">
+                    Add Chamber
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Toast container -->
+<div id="toastContainer" class="fixed top-20 right-4 z-[70] space-y-2 max-w-sm"></div>
+
+{% if messages %}
+<script>
+    window.__INITIAL_MESSAGES__ = [
+        {% for m in messages %}
+        { tags: "{{ m.tags|escapejs }}", text: "{{ m|escapejs }}" }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+</script>
+{% endif %}
+
+
+<!-- ============================================================ -->
+<!-- INLINE JS — Modal logic + Form state                          -->
+<!-- ============================================================ -->
+<script>
+(function () {
+    'use strict';
+
+    // ============================================================
+    // State
+    // ============================================================
+    // specialists: array of {id, nameBn, nameEn}
+    var selectedSpecialists = [
+        {% for sp in specialists %}
+            {% if sp.pk|stringformat:"s" in selected_specialists %}
+                { id: "{{ sp.pk }}", nameBn: "{{ sp.name_bn|escapejs }}", nameEn: "{{ sp.name_en|escapejs }}" },
+            {% endif %}
+        {% endfor %}
+    ];
+
+    // chambers: array of {centerId, centerName, day, dayLabel, start, end, room, phone}
+    var chambers = [
+        {% for ch in chambers_data %}
+        {
+            centerId: "{{ ch.diagnostic_center_id|default:'' }}",
+            centerName: "{% for c in centers %}{% if c.pk|stringformat:'s' == ch.diagnostic_center_id|stringformat:'s' %}{{ c.name_en|escapejs }}{% endif %}{% endfor %}",
+            day: "{{ ch.day|default:'' }}",
+            dayLabel: "{% for v, l in weekdays %}{% if v == ch.day %}{{ l|escapejs }}{% endif %}{% endfor %}",
+            start: "{{ ch.start_time|default:'' }}",
+            end: "{{ ch.end_time|default:'' }}",
+            room: "{{ ch.room_no|default:''|escapejs }}",
+            phone: "{{ ch.appointment_phone|default:''|escapejs }}"
+        },
+        {% endfor %}
+    ];
+
+    var editingChamberIndex = -1;
+
+    // ============================================================
+    // Toast
+    // ============================================================
+    var toastContainer = document.getElementById('toastContainer');
+
+    function showToast(text, tags) {
+        tags = tags || 'success';
+        var colorMap = {
+            success: { border: 'border-l-emerald-500', icon: 'text-emerald-600' },
+            error:   { border: 'border-l-red-500',     icon: 'text-red-600' },
+            warning: { border: 'border-l-amber-500',   icon: 'text-amber-600' },
+            info:    { border: 'border-l-brand-500',   icon: 'text-brand-600' },
+        };
+        var c = colorMap[tags] || colorMap.info;
+        var el = document.createElement('div');
+        el.className = 'toast fade-up bg-white rounded-xl border border-slate-200 shadow-lg p-3.5 flex items-start gap-2.5 ' + c.border;
+        el.innerHTML = '<svg class="w-4 h-4 shrink-0 mt-0.5 ' + c.icon + '" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><div class="text-xs sm:text-sm text-slate-700 leading-relaxed flex-1"></div>';
+        el.querySelector('div').textContent = text;
+        toastContainer.appendChild(el);
+        setTimeout(function () {
+            el.style.transition = 'opacity .3s, transform .3s';
+            el.style.opacity = '0';
+            el.style.transform = 'translateX(20px)';
+            setTimeout(function () { el.remove(); }, 300);
+        }, 4000);
+    }
+
+    if (window.__INITIAL_MESSAGES__) {
+        window.__INITIAL_MESSAGES__.forEach(function (m) { showToast(m.text, m.tags); });
+    }
+
+    // ============================================================
+    // SPECIALIST MODAL
+    // ============================================================
+    var specialistModal = document.getElementById('specialistModal');
+    var openSpecialistBtn = document.getElementById('openSpecialistModalBtn');
+    var applySpecialistsBtn = document.getElementById('applySpecialistsBtn');
+    var specialistCheckboxes = document.querySelectorAll('.specialist-checkbox');
+    var selectedSpecialistsEl = document.getElementById('selectedSpecialists');
+    var specialistsEmptyEl = document.getElementById('specialistsEmpty');
+    var specialistSelectedCountEl = document.getElementById('specialistSelectedCount');
+    var specialistsHiddenEl = document.getElementById('specialistsHidden');
+
+    function openSpecialistModal() {
+        specialistModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        updateSpecialistCount();
+    }
+    function closeSpecialistModal() {
+        specialistModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    function updateSpecialistCount() {
+        var count = 0;
+        specialistCheckboxes.forEach(function (cb) { if (cb.checked) count++; });
+        specialistSelectedCountEl.textContent = count + ' selected';
+    }
+
+    openSpecialistBtn.addEventListener('click', openSpecialistModal);
+    specialistModal.querySelectorAll('[data-close-specialist-modal]').forEach(function (el) {
+        el.addEventListener('click', closeSpecialistModal);
+    });
+
+    // Live count update
+    specialistCheckboxes.forEach(function (cb) {
+        cb.addEventListener('change', updateSpecialistCount);
+    });
+
+    // Search filter
+    var specialistSearchInput = document.getElementById('specialistSearchInput');
+    if (specialistSearchInput) {
+        specialistSearchInput.addEventListener('input', function () {
+            var q = this.value.trim().toLowerCase();
+            var anyVisible = false;
+            document.querySelectorAll('.specialist-option').forEach(function (row) {
+                var nameEn = row.dataset.nameEn || '';
+                var nameBn = row.dataset.nameBn || '';
+                var match = !q || nameEn.indexOf(q) !== -1 || nameBn.indexOf(q) !== -1;
+                row.classList.toggle('hidden', !match);
+                if (match) anyVisible = true;
+            });
+            var noResults = document.getElementById('specialistNoResults');
+            if (noResults) noResults.classList.toggle('hidden', anyVisible);
+        });
+    }
+
+    // Apply — read checkboxes, update state + UI + hidden inputs
+    applySpecialistsBtn.addEventListener('click', function () {
+        selectedSpecialists = [];
+        specialistCheckboxes.forEach(function (cb) {
+            if (cb.checked) {
+                selectedSpecialists.push({
+                    id: cb.value,
+                    nameBn: cb.dataset.nameBn,
+                    nameEn: cb.dataset.nameEn,
+                });
+            }
+        });
+        renderSelectedSpecialists();
+        closeSpecialistModal();
+    });
+
+    function renderSelectedSpecialists() {
+        selectedSpecialistsEl.innerHTML = '';
+        if (selectedSpecialists.length === 0) {
+            specialistsEmptyEl.classList.remove('hidden');
+        } else {
+            specialistsEmptyEl.classList.add('hidden');
+            selectedSpecialists.forEach(function (sp, idx) {
+                var chip = document.createElement('span');
+                chip.className = 'inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-sm font-medium px-3 py-1.5 rounded-full border border-blue-200';
+                chip.innerHTML = '<span>' + escapeHtml(sp.nameEn) + '</span>' +
+                    '<button type="button" class="chip-remove w-4 h-4 grid place-items-center rounded-full hover:bg-blue-200 transition" data-idx="' + idx + '">✕</button>';
+                chip.querySelector('.chip-remove').addEventListener('click', function () {
+                    selectedSpecialists.splice(idx, 1);
+                    // Uncheck corresponding checkbox
+                    specialistCheckboxes.forEach(function (cb) {
+                        if (cb.value === sp.id) cb.checked = false;
+                    });
+                    renderSelectedSpecialists();
+                });
+                selectedSpecialistsEl.appendChild(chip);
+            });
+        }
+        syncSpecialistsHidden();
+    }
+
+    function syncSpecialistsHidden() {
+        specialistsHiddenEl.innerHTML = '';
+        selectedSpecialists.forEach(function (sp) {
+            var inp = document.createElement('input');
+            inp.type = 'hidden';
+            inp.name = 'specialists';
+            inp.value = sp.id;
+            specialistsHiddenEl.appendChild(inp);
+        });
+    }
+
+    // ============================================================
+    // CHAMBER MODAL
+    // ============================================================
+    var chamberModal = document.getElementById('chamberModal');
+    var openChamberBtn = document.getElementById('openChamberModalBtn');
+    var applyChamberBtn = document.getElementById('applyChamberBtn');
+    var chambersListEl = document.getElementById('chambersList');
+    var chambersEmptyEl = document.getElementById('chambersEmpty');
+    var chambersHiddenEl = document.getElementById('chambersHidden');
+    var chamberModalTitle = document.getElementById('chamberModalTitle');
+    var chamberModalError = document.getElementById('chamberModalError');
+
+    var fCenter = document.getElementById('chamber_center');
+    var fDay = document.getElementById('chamber_day');
+    var fStart = document.getElementById('chamber_start');
+    var fEnd = document.getElementById('chamber_end');
+    var fRoom = document.getElementById('chamber_room');
+    var fPhone = document.getElementById('chamber_phone');
+
+    function openChamberModal(editIndex) {
+        editingChamberIndex = (typeof editIndex === 'number') ? editIndex : -1;
+        chamberModalError.classList.add('hidden');
+        chamberModalError.textContent = '';
+
+        if (editingChamberIndex >= 0) {
+            var ch = chambers[editingChamberIndex];
+            chamberModalTitle.textContent = 'Edit Chamber';
+            applyChamberBtn.textContent = 'Update';
+            fCenter.value = ch.centerId;
+            fDay.value = ch.day;
+            fStart.value = ch.start;
+            fEnd.value = ch.end;
+            fRoom.value = ch.room;
+            fPhone.value = ch.phone;
+        } else {
+            chamberModalTitle.textContent = 'Add Chamber';
+            applyChamberBtn.textContent = 'Add Chamber';
+            fCenter.value = '';
+            fDay.value = '';
+            fStart.value = '';
+            fEnd.value = '';
+            fRoom.value = '';
+            fPhone.value = '';
+        }
+
+        chamberModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        setTimeout(function () { fCenter.focus(); }, 100);
+    }
+
+    function closeChamberModal() {
+        chamberModal.classList.add('hidden');
+        document.body.style.overflow = '';
+        editingChamberIndex = -1;
+    }
+
+    openChamberBtn.addEventListener('click', function () { openChamberModal(); });
+    chamberModal.querySelectorAll('[data-close-chamber-modal]').forEach(function (el) {
+        el.addEventListener('click', closeChamberModal);
+    });
+
+    applyChamberBtn.addEventListener('click', function () {
+        // Validate
+        if (!fCenter.value) return showChamberError('Please select a diagnostic center.');
+        if (!fDay.value) return showChamberError('Please select a day.');
+        if (!fStart.value) return showChamberError('Please provide start time.');
+        if (!fEnd.value) return showChamberError('Please provide end time.');
+        if (fEnd.value <= fStart.value) return showChamberError('End time must be after start time.');
+
+        var centerName = fCenter.options[fCenter.selectedIndex].dataset.name || fCenter.options[fCenter.selectedIndex].text;
+        var dayLabel = fDay.options[fDay.selectedIndex].text;
+
+        var chamberData = {
+            centerId: fCenter.value,
+            centerName: centerName,
+            day: fDay.value,
+            dayLabel: dayLabel,
+            start: fStart.value,
+            end: fEnd.value,
+            room: fRoom.value.trim(),
+            phone: fPhone.value.trim(),
+        };
+
+        if (editingChamberIndex >= 0) {
+            chambers[editingChamberIndex] = chamberData;
+        } else {
+            chambers.push(chamberData);
+        }
+
+        renderChambers();
+        closeChamberModal();
+    });
+
+    function showChamberError(msg) {
+        chamberModalError.textContent = msg;
+        chamberModalError.classList.remove('hidden');
+    }
+
+    function renderChambers() {
+        chambersListEl.innerHTML = '';
+        if (chambers.length === 0) {
+            chambersEmptyEl.classList.remove('hidden');
+        } else {
+            chambersEmptyEl.classList.add('hidden');
+            chambers.forEach(function (ch, idx) {
+                var el = document.createElement('div');
+                el.className = 'bg-slate-50 rounded-xl p-3 border border-slate-200 flex items-start gap-3';
+                el.innerHTML =
+                    '<div class="w-9 h-9 rounded-lg bg-purple-100 text-purple-700 grid place-items-center shrink-0">' +
+                        '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>' +
+                    '</div>' +
+                    '<div class="min-w-0 flex-1">' +
+                        '<div class="text-sm font-semibold text-slate-900 truncate">' + escapeHtml(ch.centerName) + '</div>' +
+                        '<div class="text-xs text-slate-500 mt-0.5">' + escapeHtml(ch.dayLabel) + ' · ' + escapeHtml(ch.start) + ' – ' + escapeHtml(ch.end) + (ch.room ? ' · Room ' + escapeHtml(ch.room) : '') + '</div>' +
+                    '</div>' +
+                    '<div class="flex gap-1 shrink-0">' +
+                        '<button type="button" class="chamber-edit w-8 h-8 grid place-items-center rounded-lg text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 transition" data-idx="' + idx + '">✎</button>' +
+                        '<button type="button" class="chamber-del w-8 h-8 grid place-items-center rounded-lg text-red-600 bg-white border border-slate-200 hover:bg-red-50 transition" data-idx="' + idx + '">✕</button>' +
+                    '</div>';
+                el.querySelector('.chamber-edit').addEventListener('click', function () { openChamberModal(idx); });
+                el.querySelector('.chamber-del').addEventListener('click', function () {
+                    chambers.splice(idx, 1);
+                    renderChambers();
+                });
+                chambersListEl.appendChild(el);
+            });
+        }
+        syncChambersHidden();
+    }
+
+    function syncChambersHidden() {
+        chambersHiddenEl.innerHTML = '';
+        chambers.forEach(function (ch) {
+            addHidden('chamber_center[]', ch.centerId);
+            addHidden('chamber_day[]', ch.day);
+            addHidden('chamber_start[]', ch.start);
+            addHidden('chamber_end[]', ch.end);
+            addHidden('chamber_room[]', ch.room);
+            addHidden('chamber_phone[]', ch.phone);
+        });
+    }
+
+    function addHidden(name, value) {
+        var inp = document.createElement('input');
+        inp.type = 'hidden';
+        inp.name = name;
+        inp.value = value;
+        chambersHiddenEl.appendChild(inp);
+    }
+
+    // ============================================================
+    // ESC closes any open modal
+    // ============================================================
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        if (!specialistModal.classList.contains('hidden')) closeSpecialistModal();
+        if (!chamberModal.classList.contains('hidden')) closeChamberModal();
+    });
+
+    // ============================================================
+    // INITIAL RENDER
+    // ============================================================
+    renderSelectedSpecialists();
+    renderChambers();
+
+    // ============================================================
+    // HTML escape
+    // ============================================================
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function (ch) {
+            return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[ch];
+        });
+    }
+
+})();
+</script>
+
+{% endblock %}
