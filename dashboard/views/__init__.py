@@ -16,9 +16,11 @@ from .diagnostic_center_views import (  # noqa: F401
 )
 
 # ---- Doctor views ----
+# ---- Doctor views ----
 from .doctor_views import (  # noqa: F401
     doctor_list,
     doctor_create,
+    doctor_create_ajax,   # ← NEW
     doctor_edit,
     doctor_delete,
 )
@@ -27,6 +29,7 @@ from .doctor_views import (  # noqa: F401
 from .specialist_views import (  # noqa: F401
     specialist_list,
     specialist_create,
+    specialist_create_ajax,
     specialist_edit,
     specialist_delete,
 )
@@ -42,7 +45,9 @@ __all__ = [
     "index",
     "center_list", "center_create", "center_create_ajax",
     "center_edit", "center_delete", "center_toggle",
-    "doctor_list", "doctor_create", "doctor_edit", "doctor_delete",
-    "specialist_list", "specialist_create", "specialist_edit", "specialist_delete",
+    "doctor_list", "doctor_create", "doctor_create_ajax",
+    "doctor_edit", "doctor_delete",
+    "specialist_list", "specialist_create", "specialist_create_ajax",
+    "specialist_edit", "specialist_delete",
     "dashboard", "diagnostic_center_views", "doctor_views", "specialist_views",
 ]

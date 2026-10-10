@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -72,7 +73,35 @@ def specialist_list(request):
 
 
 # ==================================================================
-# CREATE
+# CREATE (AJAX from modal)
+# ==================================================================
+@staff_member_required
+@require_POST
+def specialist_create_ajax(request):
+    """
+    Create a new specialist via AJAX (from modal on list page).
+    Returns JSON: {ok: true, id, name_en, redirect: url} or {ok: false, errors: [...]}
+    """
+    data, errors = _extract_specialist_data(request)
+
+    if errors:
+        return JsonResponse({"ok": False, "errors": errors}, status=400)
+
+    specialist = Specialist(**data)
+    specialist.save()
+
+    return JsonResponse({
+        "ok": True,
+        "id": specialist.pk,
+        "name_bn": specialist.name_bn,
+        "name_en": specialist.name_en,
+        "slug": specialist.slug,
+        "message": '"' + specialist.name_bn + '" added successfully.',
+    })
+
+
+# ==================================================================
+# CREATE (full page — kept as fallback)
 # ==================================================================
 @staff_member_required
 def specialist_create(request):
@@ -152,7 +181,7 @@ def specialist_delete(request, pk):
     doctor_count = specialist.doctors.count()
 
     if doctor_count > 0:
-        messages.error(request, 'Cannot delete "%s" — %d doctor(s) are using it.' % (name, doctor_count))
+        messages.error(request, 'Cannot delete "' + name + '" — ' + str(doctor_count) + ' doctor(s) are using it.')
         return redirect("dashboard:specialist_list")
 
     specialist.delete()

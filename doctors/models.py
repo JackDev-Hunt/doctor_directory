@@ -84,9 +84,102 @@ class Specialist(BilingualNameSlugModel):
 
 
 # ==================================================================
+# DISTRICT
+# ==================================================================
+class District(models.Model):
+    """A district (জেলা) in Bangladesh."""
+    name_bn = models.CharField("জেলা (বাংলা)", max_length=100)
+    name_en = models.CharField("District (English)", max_length=100)
+    slug = models.SlugField(max_length=120, unique=True, blank=True)
+    division_bn = models.CharField("বিভাগ (বাংলা)", max_length=100, blank=True)
+    division_en = models.CharField("Division (English)", max_length=100, blank=True)
+
+    is_active = models.BooleanField("Active?", default=True)
+    display_order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "District"
+        verbose_name_plural = "Districts"
+        ordering = ["display_order", "name_en"]
+        indexes = [
+            models.Index(fields=["slug"]),
+            models.Index(fields=["is_active"]),
+        ]
+
+    def __str__(self):
+        return self.name_bn or self.name_en
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = slugify(self.name_en) or slugify(self.name_bn) or "district"
+            slug = base
+            i = 1
+            while self.__class__.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                i += 1
+                slug = f"{base}-{i}"
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+
+# ==================================================================
+# UPAZILA
+# ==================================================================
+class Upazila(models.Model):
+    """An upazila (উপজেলা) within a district."""
+    district = models.ForeignKey(
+        District, on_delete=models.CASCADE, related_name="upazilas"
+    )
+    name_bn = models.CharField("উপজেলা (বাংলা)", max_length=100)
+    name_en = models.CharField("Upazila (English)", max_length=100)
+    slug = models.SlugField(max_length=140, unique=True, blank=True)
+
+    is_active = models.BooleanField("Active?", default=True)
+    display_order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Upazila"
+        verbose_name_plural = "Upazilas"
+        ordering = ["district__display_order", "display_order", "name_en"]
+        unique_together = [("district", "name_en")]
+        indexes = [
+            models.Index(fields=["slug"]),
+            models.Index(fields=["is_active"]),
+            models.Index(fields=["district", "is_active"]),
+        ]
+
+    def __str__(self):
+        return f"{self.name_bn}, {self.district.name_bn}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = f"{slugify(self.name_en)}-{slugify(self.district.name_en)}"
+            slug = base
+            i = 1
+            while self.__class__.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                i += 1
+                slug = f"{base}-{i}"
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+
+# ==================================================================
 # DIAGNOSTIC CENTER
 # ==================================================================
 class DiagnosticCenter(BilingualNameSlugModel):
+    # ─── Location FK (NEW) ────────────────────────────────────────
+    upazila = models.ForeignKey(
+        Upazila,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="centers",
+        verbose_name="উপজেলা / Upazila",
+    )
+
     address_bn = models.CharField("ঠিকানা (বাংলা)", max_length=300, blank=True)
     address_en = models.CharField("Address (English)", max_length=300, blank=True)
     area_bn = models.CharField("এলাকা (বাংলা)", max_length=100, blank=True)
@@ -126,6 +219,7 @@ class DiagnosticCenter(BilingualNameSlugModel):
             models.Index(fields=["is_active", "is_verified"]),
             models.Index(fields=["area_en"]),
             models.Index(fields=["slug"]),
+            models.Index(fields=["upazila", "is_active"]),  # NEW
         ]
 
     def get_absolute_url(self):
@@ -142,6 +236,13 @@ class DiagnosticCenter(BilingualNameSlugModel):
         if self.has_location:
             return f"https://www.google.com/maps/search/?api=1&query={self.latitude},{self.longitude}"
         return ""
+
+    @property
+    def full_area_label(self):
+        """Display: 'Upazila, District' or fallback to area field."""
+        if self.upazila:
+            return f"{self.upazila.name_bn}, {self.upazila.district.name_bn}"
+        return self.area_bn or self.area_en or ""
 
 
 # ==================================================================
@@ -187,6 +288,37 @@ class Doctor(BilingualNameSlugModel):
     @property
     def primary_specialist(self):
         return self.specialists.first()
+
+    # ─── Location properties (derived from chambers) ──────────────
+    @property
+    def practicing_upazilas(self):
+        """
+        Return QuerySet of unique upazilas where this doctor has
+        active chambers.
+        """
+        upazila_ids = (
+            self.chambers
+            .filter(is_active=True, diagnostic_center__upazila__isnull=False)
+            .values_list("diagnostic_center__upazila_id", flat=True)
+            .distinct()
+        )
+        return Upazila.objects.filter(id__in=upazila_ids).order_by("display_order", "name_en")
+
+    @property
+    def primary_upazila(self):
+        """The first upazila where this doctor practices."""
+        return self.practicing_upazilas.first()
+
+    @property
+    def practicing_districts(self):
+        """Return unique districts where this doctor practices."""
+        district_ids = (
+            self.chambers
+            .filter(is_active=True, diagnostic_center__upazila__isnull=False)
+            .values_list("diagnostic_center__upazila__district_id", flat=True)
+            .distinct()
+        )
+        return District.objects.filter(id__in=district_ids)
 
 
 # ==================================================================
@@ -241,6 +373,3 @@ class Chamber(TimeStampedModel):
             or self.diagnostic_center.phone
             or self.doctor.phone
         )
-
-
-    

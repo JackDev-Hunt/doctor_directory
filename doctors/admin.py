@@ -3,8 +3,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.utils import timezone
 
-from .models import Specialist, DiagnosticCenter, Doctor, Chamber
-
+from .models import Specialist, DiagnosticCenter, Doctor, Chamber, District, Upazila
 
 # ==================================================================
 # SPECIALIST
@@ -166,3 +165,30 @@ class ChamberAdmin(admin.ModelAdmin):
     autocomplete_fields = ("doctor", "diagnostic_center")
     list_editable = ("is_active",)
     list_per_page = 30
+
+
+# ==================================================================
+# DISTRICT
+# ==================================================================
+@admin.register(District)
+class DistrictAdmin(admin.ModelAdmin):
+    list_display = ("name_bn", "name_en", "slug", "division_en", "is_active", "display_order")
+    list_filter = ("is_active", "division_en")
+    search_fields = ("name_bn", "name_en", "slug")
+    prepopulated_fields = {"slug": ("name_en",)}
+    list_editable = ("is_active", "display_order")
+
+
+# ==================================================================
+# UPAZILA
+# ==================================================================
+@admin.register(Upazila)
+class UpazilaAdmin(admin.ModelAdmin):
+    list_display = ("name_bn", "name_en", "district", "slug", "is_active", "display_order")
+    list_filter = ("is_active", "district")
+    search_fields = ("name_bn", "name_en", "slug")
+    list_editable = ("is_active", "display_order")
+    autocomplete_fields = ("district",)
+
+
+    

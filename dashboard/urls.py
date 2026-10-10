@@ -19,14 +19,17 @@ urlpatterns = [
     path("centers/<int:pk>/toggle/<str:field>/",  center_views.center_toggle,      name="center_toggle"),
 
     # ---------- Doctors ----------
-    path("doctors/",                              doctor_v.doctor_list,            name="doctor_list"),
-    path("doctors/new/",                          doctor_v.doctor_create,          name="doctor_create"),
-    path("doctors/<int:pk>/edit/",                doctor_v.doctor_edit,            name="doctor_edit"),
-    path("doctors/<int:pk>/delete/",              doctor_v.doctor_delete,          name="doctor_delete"),
+    # ---------- Doctors ----------
+    path("doctors/",                       doctor_v.doctor_list,         name="doctor_list"),
+    path("doctors/new/",                   doctor_v.doctor_create,       name="doctor_create"),
+    path("doctors/new/ajax/",              doctor_v.doctor_create_ajax,  name="doctor_create_ajax"),   # ← NEW
+    path("doctors/<int:pk>/edit/",         doctor_v.doctor_edit,         name="doctor_edit"),
+    path("doctors/<int:pk>/delete/",       doctor_v.doctor_delete,       name="doctor_delete"),
 
     # ---------- Specialists ----------
-    path("specialists/",                          spec_v.specialist_list,          name="specialist_list"),
-    path("specialists/new/",                      spec_v.specialist_create,        name="specialist_create"),
-    path("specialists/<int:pk>/edit/",            spec_v.specialist_edit,          name="specialist_edit"),
-    path("specialists/<int:pk>/delete/",          spec_v.specialist_delete,        name="specialist_delete"),
+    path("specialists/",                          spec_v.specialist_list,           name="specialist_list"),
+    path("specialists/new/",                      spec_v.specialist_create,         name="specialist_create"),
+    path("specialists/new/ajax/",                 spec_v.specialist_create_ajax,    name="specialist_create_ajax"),
+    path("specialists/<int:pk>/edit/",            spec_v.specialist_edit,           name="specialist_edit"),
+    path("specialists/<int:pk>/delete/",          spec_v.specialist_delete,         name="specialist_delete"),
 ]
